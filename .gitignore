@@ -3,6 +3,12 @@
 # superpowers (local agent data)
 .superpowers/
 
+# local Claude Code settings (personal allowlist)
+.claude/settings.local.json
+
+# editor (personal)
+.vscode/
+
 # dependencies
 /node_modules
 /.pnp
