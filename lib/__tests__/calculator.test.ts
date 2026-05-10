@@ -18,3 +18,25 @@ describe('calculateCourts', () => {
     expect(result).toEqual({ badminton: 6, pickleball: 2, total: 8 })
   })
 })
+
+import { calculateRevenue } from '../calculator'
+
+describe('calculateRevenue', () => {
+  it('matches spec example for 3 badminton + 1 pickleball', () => {
+    // bad: 3 * 45 * 42 * 52 = 294,840
+    // pickle: 1 * 55 * 38 * 52 = 108,680
+    // court: 403,520
+    // other: 403,520 * 0.18 = 72,633.6
+    // gross: 476,153.6
+    const result = calculateRevenue({ badminton: 3, pickleball: 1, total: 4 }, DEFAULT_ASSUMPTIONS)
+    expect(result.badminton).toBe(294_840)
+    expect(result.pickleball).toBe(108_680)
+    expect(result.other).toBeCloseTo(72_633.6, 5)
+    expect(result.gross).toBeCloseTo(476_153.6, 5)
+  })
+
+  it('returns zeros for zero courts', () => {
+    const result = calculateRevenue({ badminton: 0, pickleball: 0, total: 0 }, DEFAULT_ASSUMPTIONS)
+    expect(result).toEqual({ badminton: 0, pickleball: 0, other: 0, gross: 0 })
+  })
+})
