@@ -1,0 +1,87 @@
+'use client'
+
+import { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ChevronDown } from 'lucide-react'
+import type { Assumptions } from '@/types/analysis'
+import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
+
+interface Props {
+  value: Assumptions
+  onChange: (next: Assumptions) => void
+}
+
+const fields: Array<{ key: keyof Assumptions; label: string; step?: string }> = [
+  { key: 'badmintonHourlyRate', label: 'Badminton $/hr' },
+  { key: 'pickleballHourlyRate', label: 'Pickleball $/hr' },
+  { key: 'badmintonReservedHoursPerWeek', label: 'Badminton hrs/wk' },
+  { key: 'pickleballReservedHoursPerWeek', label: 'Pickleball hrs/wk' },
+  { key: 'otherRevenuePct', label: 'Other revenue %', step: '0.01' },
+  { key: 'badmintonMixPct', label: 'Badminton mix %', step: '0.01' },
+  { key: 'pickleballMixPct', label: 'Pickleball mix %', step: '0.01' },
+  { key: 'usableCourtAreaPct', label: 'Usable court area %', step: '0.01' },
+  { key: 'badmintonCourtSqft', label: 'Badminton court sf' },
+  { key: 'pickleballCourtSqft', label: 'Pickleball court sf' },
+  { key: 'utilitiesPerSqftYr', label: 'Utilities $/sf/yr', step: '0.01' },
+  { key: 'insurancePerSqftYr', label: 'Insurance $/sf/yr', step: '0.01' },
+  { key: 'maintenancePerSqftYr', label: 'Maintenance $/sf/yr', step: '0.01' },
+  { key: 'royaltyPct', label: 'Royalty %', step: '0.001' },
+  { key: 'marketingPct', label: 'Marketing %', step: '0.001' },
+  { key: 'miscAdminPct', label: 'Misc/Admin %', step: '0.001' },
+  { key: 'payrollHourlyRate', label: 'Payroll $/hr' },
+  { key: 'payrollHoursPerWeek', label: 'Payroll hrs/wk' },
+  { key: 'payrollBurden', label: 'Payroll burden ×', step: '0.01' },
+  { key: 'renovationPerSqftLow', label: 'Reno $/sf low' },
+  { key: 'renovationPerSqftMid', label: 'Reno $/sf mid' },
+  { key: 'renovationPerSqftHigh', label: 'Reno $/sf high' },
+  { key: 'franchiseFee', label: 'Franchise fee' },
+]
+
+export function AssumptionsPanel({ value, onChange }: Props) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Card>
+      <Collapsible open={open} onOpenChange={(next) => setOpen(next)}>
+        <CardHeader>
+          <CollapsibleTrigger className="flex w-full items-center justify-between">
+            <CardTitle>Assumptions</CardTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onChange(DEFAULT_ASSUMPTIONS)
+                }}
+              >
+                Reset to defaults
+              </Button>
+              <ChevronDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+            </div>
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {fields.map(f => (
+              <div key={f.key}>
+                <Label className="text-xs text-slate-600">{f.label}</Label>
+                <Input
+                  type="number"
+                  step={f.step}
+                  value={value[f.key]}
+                  onChange={e => onChange({ ...value, [f.key]: Number(e.target.value) })}
+                />
+              </div>
+            ))}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  )
+}
