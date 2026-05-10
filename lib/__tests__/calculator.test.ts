@@ -40,3 +40,35 @@ describe('calculateRevenue', () => {
     expect(result).toEqual({ badminton: 0, pickleball: 0, other: 0, gross: 0 })
   })
 })
+
+import { calculateExpenses } from '../calculator'
+
+describe('calculateExpenses', () => {
+  it('matches spec example: 12,500 sf @ $20/sf, gross $476,153.6', () => {
+    const result = calculateExpenses({
+      totalSqft: 12_500,
+      rentPerSqftYr: 20,
+      grossRevenue: 476_153.6,
+      assumptions: DEFAULT_ASSUMPTIONS,
+    })
+    expect(result.rent).toBe(250_000)
+    expect(result.payroll).toBeCloseTo(39_603.2, 5)        // 17 * 40 * 52 * 1.12
+    expect(result.utilities).toBe(56_250)                   // 12,500 * 4.5
+    expect(result.insurance).toBe(15_625)                   // 12,500 * 1.25
+    expect(result.maintenance).toBe(28_125)                 // 12,500 * 2.25
+    expect(result.royalty).toBeCloseTo(33_330.752, 5)       // gross * 0.07
+    expect(result.marketing).toBeCloseTo(11_903.84, 5)      // gross * 0.025
+    expect(result.miscAdmin).toBeCloseTo(9_523.072, 5)      // gross * 0.02
+    expect(result.total).toBeCloseTo(444_360.864, 3)
+  })
+
+  it('handles missing rent as zero', () => {
+    const result = calculateExpenses({
+      totalSqft: 12_500,
+      rentPerSqftYr: null,
+      grossRevenue: 0,
+      assumptions: DEFAULT_ASSUMPTIONS,
+    })
+    expect(result.rent).toBe(0)
+  })
+})

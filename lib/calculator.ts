@@ -22,3 +22,22 @@ export function calculateRevenue(
   const gross = courtRevenue + other
   return { badminton, pickleball, other, gross }
 }
+
+export function calculateExpenses(input: {
+  totalSqft: number
+  rentPerSqftYr: number | null
+  grossRevenue: number
+  assumptions: Assumptions
+}) {
+  const { totalSqft, rentPerSqftYr, grossRevenue, assumptions: a } = input
+  const rent = (rentPerSqftYr ?? 0) * totalSqft
+  const payroll = a.payrollHourlyRate * a.payrollHoursPerWeek * a.weeksPerYear * a.payrollBurden
+  const utilities = totalSqft * a.utilitiesPerSqftYr
+  const insurance = totalSqft * a.insurancePerSqftYr
+  const maintenance = totalSqft * a.maintenancePerSqftYr
+  const royalty = grossRevenue * a.royaltyPct
+  const marketing = grossRevenue * a.marketingPct
+  const miscAdmin = grossRevenue * a.miscAdminPct
+  const total = rent + payroll + utilities + insurance + maintenance + royalty + marketing + miscAdmin
+  return { rent, payroll, utilities, insurance, maintenance, royalty, marketing, miscAdmin, total }
+}
