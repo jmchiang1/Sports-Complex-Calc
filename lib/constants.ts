@@ -1,0 +1,41 @@
+import type { Assumptions } from '@/types/analysis'
+
+export const DEFAULT_ASSUMPTIONS: Assumptions = {
+  badmintonCourtSqft: 1250,
+  pickleballCourtSqft: 1800,
+  usableCourtAreaPct: 0.8,
+  badmintonMixPct: 0.6,
+  pickleballMixPct: 0.4,
+  badmintonHourlyRate: 45,
+  pickleballHourlyRate: 55,
+  badmintonReservedHoursPerWeek: 42,
+  pickleballReservedHoursPerWeek: 38,
+  weeksPerYear: 52,
+  otherRevenuePct: 0.18,
+  payrollHourlyRate: 17,
+  payrollHoursPerWeek: 40,
+  payrollBurden: 1.12,
+  utilitiesPerSqftYr: 4.5,
+  insurancePerSqftYr: 1.25,
+  maintenancePerSqftYr: 2.25,
+  royaltyPct: 0.07,
+  marketingPct: 0.025,
+  miscAdminPct: 0.02,
+  renovationPerSqftLow: 18,
+  renovationPerSqftMid: 28,
+  renovationPerSqftHigh: 45,
+  franchiseFee: 40_000,
+}
+
+export const EMPTY_LISTING = {
+  address: null,
+  totalSqft: null,
+  warehouseSqft: null,
+  officeSqft: null,
+  clearHeight: null,
+  rentPerSqftYr: null,
+  zoning: null,
+  loading: null,
+  parking: null,
+  locationNotes: [],
+} as const
