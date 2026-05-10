@@ -48,23 +48,20 @@ export function AssumptionsPanel({ value, onChange }: Props) {
     <Card>
       <Collapsible open={open} onOpenChange={(next) => setOpen(next)}>
         <CardHeader>
-          <CollapsibleTrigger className="flex w-full items-center justify-between">
-            <CardTitle>Assumptions</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onChange(DEFAULT_ASSUMPTIONS)
-                }}
-              >
-                Reset to defaults
-              </Button>
+          <div className="flex w-full items-center justify-between gap-2">
+            <CollapsibleTrigger className="flex flex-1 items-center justify-between text-left">
+              <CardTitle>Assumptions</CardTitle>
               <ChevronDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
-            </div>
-          </CollapsibleTrigger>
+            </CollapsibleTrigger>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onChange(DEFAULT_ASSUMPTIONS)}
+            >
+              Reset to defaults
+            </Button>
+          </div>
         </CardHeader>
         <CollapsibleContent>
           <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3">
