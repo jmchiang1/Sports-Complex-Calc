@@ -41,3 +41,16 @@ export function calculateExpenses(input: {
   const total = rent + payroll + utilities + insurance + maintenance + royalty + marketing + miscAdmin
   return { rent, payroll, utilities, insurance, maintenance, royalty, marketing, miscAdmin, total }
 }
+
+export function calculateStartupCost(totalSqft: number, a: Assumptions) {
+  return {
+    low: totalSqft * a.renovationPerSqftLow + a.franchiseFee,
+    mid: totalSqft * a.renovationPerSqftMid + a.franchiseFee,
+    high: totalSqft * a.renovationPerSqftHigh + a.franchiseFee,
+  }
+}
+
+export function calculatePaybackYears(startupMid: number, noi: number): number | null {
+  if (noi <= 0) return null
+  return startupMid / noi
+}

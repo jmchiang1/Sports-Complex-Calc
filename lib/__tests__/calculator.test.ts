@@ -72,3 +72,26 @@ describe('calculateExpenses', () => {
     expect(result.rent).toBe(0)
   })
 })
+
+import { calculateStartupCost, calculatePaybackYears } from '../calculator'
+
+describe('calculateStartupCost', () => {
+  it('matches spec for 12,500 sf', () => {
+    const r = calculateStartupCost(12_500, DEFAULT_ASSUMPTIONS)
+    expect(r.low).toBe(12_500 * 18 + 40_000)   // 265,000
+    expect(r.mid).toBe(12_500 * 28 + 40_000)   // 390,000
+    expect(r.high).toBe(12_500 * 45 + 40_000)  // 602,500
+  })
+})
+
+describe('calculatePaybackYears', () => {
+  it('returns startupMid / noi when noi > 0', () => {
+    expect(calculatePaybackYears(390_000, 100_000)).toBe(3.9)
+  })
+  it('returns null when noi is zero', () => {
+    expect(calculatePaybackYears(390_000, 0)).toBeNull()
+  })
+  it('returns null when noi is negative', () => {
+    expect(calculatePaybackYears(390_000, -1000)).toBeNull()
+  })
+})
