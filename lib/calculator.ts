@@ -56,10 +56,11 @@ export function calculatePaybackYears(startupMid: number, noi: number): number |
 }
 
 import type { AnalysisInput, AnalysisResult } from '@/types/analysis'
+import { rateAnalysis } from './rating'
+import { generateRiskFlags } from './risk-flags'
+import { generateFallbackSummary } from './summary-fallback'
 
-type PartialResult = Omit<AnalysisResult, 'rating' | 'riskFlags' | 'summary'>
-
-export function calculateAnalysis(input: AnalysisInput): PartialResult {
+export function calculateAnalysis(input: AnalysisInput): AnalysisResult {
   const { listing, assumptions } = input
   const totalSqft = listing.totalSqft ?? 0
   const warehouseSqft = listing.warehouseSqft ?? totalSqft
@@ -83,6 +84,28 @@ export function calculateAnalysis(input: AnalysisInput): PartialResult {
   const startupCost = calculateStartupCost(totalSqft, assumptions)
   const paybackYears = calculatePaybackYears(startupCost.mid, noi)
 
+  const rating = rateAnalysis({
+    totalSqft: listing.totalSqft,
+    rentPerSqftYr: listing.rentPerSqftYr,
+    totalCourts: courts.total,
+    noi,
+    noiMargin,
+    rentBurden,
+    paybackYears,
+  })
+
+  const riskFlags = generateRiskFlags({ listing, totalCourts: courts.total, rentBurden })
+
+  const summary = generateFallbackSummary({
+    address: listing.address,
+    rating,
+    courts,
+    grossRevenue: revenue.gross,
+    noi,
+    paybackYears,
+    flags: riskFlags,
+  })
+
   return {
     courts,
     revenue,
@@ -95,5 +118,8 @@ export function calculateAnalysis(input: AnalysisInput): PartialResult {
     revenuePerSqft,
     startupCost,
     paybackYears,
+    rating,
+    riskFlags,
+    summary,
   }
 }

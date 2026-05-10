@@ -144,3 +144,30 @@ describe('calculateAnalysis (orchestrator)', () => {
     expect(result.noi).toBeLessThanOrEqual(0)
   })
 })
+
+describe('calculateAnalysis (full result)', () => {
+  it('produces the full result with rating + flags + fallback summary for spec example', () => {
+    const result = calculateAnalysis({
+      listing: {
+        ...EMPTY_LISTING,
+        address: '91-15 139th St, Jamaica, NY 11435',
+        totalSqft: 12_500,
+        warehouseSqft: 10_000,
+        officeSqft: 2_500,
+        clearHeight: 20,
+        rentPerSqftYr: 20,
+        zoning: 'M1-1',
+      },
+      assumptions: DEFAULT_ASSUMPTIONS,
+    })
+
+    expect(result.rating).toBe('Do Not Pursue')              // rentBurden > 0.35
+    const flagIds = result.riskFlags.map(f => f.id)
+    expect(flagIds).toContain('low-clear-height')
+    expect(flagIds).toContain('too-few-courts')
+    expect(flagIds).toContain('high-rent-burden')
+    expect(flagIds).toContain('office-space')
+    expect(flagIds).toContain('zoning')
+    expect(result.summary).toMatch(/Do Not Pursue/)
+  })
+})
