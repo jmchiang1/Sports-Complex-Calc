@@ -1,4 +1,4 @@
-import type { Assumptions } from '@/types/analysis'
+import type { Assumptions, ExtractedListing } from '@/types/analysis'
 
 export const DEFAULT_ASSUMPTIONS: Assumptions = {
   badmintonCourtSqft: 1250,
@@ -27,7 +27,7 @@ export const DEFAULT_ASSUMPTIONS: Assumptions = {
   franchiseFee: 40_000,
 }
 
-export const EMPTY_LISTING = {
+export const EMPTY_LISTING: ExtractedListing = {
   address: null,
   totalSqft: null,
   warehouseSqft: null,
@@ -38,4 +38,4 @@ export const EMPTY_LISTING = {
   loading: null,
   parking: null,
   locationNotes: [],
-} as const
+}
