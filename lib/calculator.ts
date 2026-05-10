@@ -54,3 +54,46 @@ export function calculatePaybackYears(startupMid: number, noi: number): number |
   if (noi <= 0) return null
   return startupMid / noi
 }
+
+import type { AnalysisInput, AnalysisResult } from '@/types/analysis'
+
+type PartialResult = Omit<AnalysisResult, 'rating' | 'riskFlags' | 'summary'>
+
+export function calculateAnalysis(input: AnalysisInput): PartialResult {
+  const { listing, assumptions } = input
+  const totalSqft = listing.totalSqft ?? 0
+  const warehouseSqft = listing.warehouseSqft ?? totalSqft
+
+  const courts = calculateCourts(warehouseSqft, assumptions)
+  const revenue = calculateRevenue(courts, assumptions)
+  const expenses = calculateExpenses({
+    totalSqft,
+    rentPerSqftYr: listing.rentPerSqftYr,
+    grossRevenue: revenue.gross,
+    assumptions,
+  })
+
+  const noi = revenue.gross - expenses.total
+  const noiMargin = revenue.gross > 0 ? noi / revenue.gross : 0
+  const monthlyRent = expenses.rent / 12
+  const monthlyRevenue = revenue.gross / 12
+  const rentBurden = revenue.gross > 0 ? expenses.rent / revenue.gross : 0
+  const revenuePerSqft = totalSqft > 0 ? revenue.gross / totalSqft : 0
+
+  const startupCost = calculateStartupCost(totalSqft, assumptions)
+  const paybackYears = calculatePaybackYears(startupCost.mid, noi)
+
+  return {
+    courts,
+    revenue,
+    expenses,
+    noi,
+    noiMargin,
+    monthlyRent,
+    monthlyRevenue,
+    rentBurden,
+    revenuePerSqft,
+    startupCost,
+    paybackYears,
+  }
+}

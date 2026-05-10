@@ -95,3 +95,52 @@ describe('calculatePaybackYears', () => {
     expect(calculatePaybackYears(390_000, -1000)).toBeNull()
   })
 })
+
+import { calculateAnalysis } from '../calculator'
+import { EMPTY_LISTING } from '../constants'
+
+describe('calculateAnalysis (orchestrator)', () => {
+  it('returns the spec example end-to-end (without rating/flags/summary, those come later)', () => {
+    const result = calculateAnalysis({
+      listing: {
+        ...EMPTY_LISTING,
+        address: '91-15 139th St',
+        totalSqft: 12_500,
+        warehouseSqft: 10_000,
+        officeSqft: 2_500,
+        clearHeight: 20,
+        rentPerSqftYr: 20,
+      },
+      assumptions: DEFAULT_ASSUMPTIONS,
+    })
+
+    expect(result.courts).toEqual({ badminton: 3, pickleball: 1, total: 4 })
+    expect(result.revenue.gross).toBeCloseTo(476_153.6, 3)
+    expect(result.expenses.total).toBeCloseTo(444_360.864, 3)
+    expect(result.noi).toBeCloseTo(31_792.736, 3)
+    expect(result.noiMargin).toBeCloseTo(0.0668, 3)
+    expect(result.rentBurden).toBeCloseTo(0.525, 3)
+    expect(result.monthlyRent).toBeCloseTo(20_833.33, 2)
+    expect(result.monthlyRevenue).toBeCloseTo(39_679.47, 2)
+    expect(result.revenuePerSqft).toBeCloseTo(38.09, 2)
+    expect(result.startupCost.mid).toBe(390_000)
+    expect(result.paybackYears).toBeCloseTo(12.27, 2)
+  })
+
+  it('falls back to totalSqft when warehouseSqft is null', () => {
+    const result = calculateAnalysis({
+      listing: { ...EMPTY_LISTING, totalSqft: 10_000, warehouseSqft: null, rentPerSqftYr: 20 },
+      assumptions: DEFAULT_ASSUMPTIONS,
+    })
+    expect(result.courts.total).toBeGreaterThan(0)
+  })
+
+  it('returns zero-revenue when totalSqft is null', () => {
+    const result = calculateAnalysis({
+      listing: { ...EMPTY_LISTING },
+      assumptions: DEFAULT_ASSUMPTIONS,
+    })
+    expect(result.revenue.gross).toBe(0)
+    expect(result.noi).toBeLessThanOrEqual(0)
+  })
+})
