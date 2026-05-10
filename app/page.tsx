@@ -1,65 +1,120 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useMemo, useState, useTransition } from 'react'
+import { Button } from '@/components/ui/button'
+import { ListingInput } from '@/components/ListingInput'
+import { PropertyForm } from '@/components/PropertyForm'
+import { AssumptionsPanel } from '@/components/AssumptionsPanel'
+import { RatingBadge } from '@/components/Dashboard/RatingBadge'
+import { KpiCards } from '@/components/Dashboard/KpiCards'
+import { CourtFitPanel } from '@/components/Dashboard/CourtFitPanel'
+import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
+import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
+import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
+import { SavedPropertiesSheet } from '@/components/SavedPropertiesSheet'
+import { calculateAnalysis } from '@/lib/calculator'
+import { DEFAULT_ASSUMPTIONS, EMPTY_LISTING } from '@/lib/constants'
+import { saveProperty } from '@/app/actions/save-property'
+import type { Assumptions, ExtractedListing } from '@/types/analysis'
+
+export default function Page() {
+  const [listing, setListing] = useState<ExtractedListing>({ ...EMPTY_LISTING })
+  const [assumptions, setAssumptions] = useState<Assumptions>(DEFAULT_ASSUMPTIONS)
+  const [savedId, setSavedId] = useState<string | undefined>(undefined)
+  const [saveStatus, setSaveStatus] = useState<string | null>(null)
+  const [pending, start] = useTransition()
+
+  const result = useMemo(
+    () => calculateAnalysis({ listing, assumptions }),
+    [listing, assumptions],
+  )
+
+  const reset = () => {
+    setListing({ ...EMPTY_LISTING })
+    setAssumptions(DEFAULT_ASSUMPTIONS)
+    setSavedId(undefined)
+  }
+
+  const exportJson = () => {
+    const blob = new Blob(
+      [JSON.stringify({ listing, assumptions, result }, null, 2)],
+      { type: 'application/json' },
+    )
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${listing.address?.replace(/\W+/g, '-') || 'analysis'}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const save = () =>
+    start(async () => {
+      setSaveStatus(null)
+      const r = await saveProperty({
+        id: savedId,
+        label: listing.address,
+        address: listing.address,
+        listing,
+        assumptions,
+        snapshot: {
+          rating: result.rating,
+          noi: result.noi,
+          totalCourts: result.courts.total,
+          paybackYears: result.paybackYears,
+        },
+      })
+      if ('error' in r) {
+        setSaveStatus(r.error === 'not_authenticated' ? 'Sign in to save.' : `Error: ${r.error}`)
+      } else {
+        setSavedId(r.id)
+        setSaveStatus('Saved.')
+      }
+    })
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="max-w-6xl mx-auto px-6 py-8 space-y-5">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-slate-500">Paste a listing → review → save → compare.</div>
+        <SavedPropertiesSheet
+          onLoad={(row) => {
+            setListing(row.listing_json)
+            setAssumptions(row.assumptions_json)
+            setSavedId(row.id)
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      </div>
+
+      <ListingInput onExtracted={(l) => setListing(l)} />
+      <PropertyForm value={listing} onChange={setListing} />
+      <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
+
+      <section className="space-y-4 pt-2">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold tracking-tight">Analysis</h2>
+          <RatingBadge rating={result.rating} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <KpiCards result={result} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
+          <RiskFlagsPanel flags={result.riskFlags} />
         </div>
-      </main>
-    </div>
-  );
+
+        <FinancialBreakdown result={result} />
+
+        <SummaryPanel result={result} address={listing.address} />
+      </section>
+
+      <div className="flex items-center gap-2 pt-3 border-t">
+        <Button onClick={save} disabled={pending}>
+          {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
+        </Button>
+        <Button variant="ghost" onClick={reset}>Reset</Button>
+        <Button variant="ghost" onClick={exportJson}>Export JSON</Button>
+        {saveStatus && <span className="text-sm text-slate-500 ml-2">{saveStatus}</span>}
+      </div>
+    </main>
+  )
 }

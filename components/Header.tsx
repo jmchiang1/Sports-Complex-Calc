@@ -5,8 +5,14 @@ import { signOut } from '@/app/actions/auth'
 import { SignInDialog } from './SignInDialog'
 
 export async function Header() {
-  const sb = await createSupabaseServerClient()
-  const { data: { user } } = await sb.auth.getUser()
+  let user = null
+  try {
+    const sb = await createSupabaseServerClient()
+    const r = await sb.auth.getUser()
+    user = r.data.user
+  } catch {
+    // no Supabase configured — render unauthenticated state
+  }
 
   return (
     <header className="bg-[#0a0f1c] text-white border-b border-[#1f2937]">
