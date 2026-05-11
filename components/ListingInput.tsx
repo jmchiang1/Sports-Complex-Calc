@@ -87,7 +87,7 @@ export function ListingInput({ onExtracted }: Props) {
       : 'Extract with AI'
 
   return (
-    <Card className="listing-input-card">
+    <Card size="sm" className="listing-input-card">
       <CardHeader>
         <CardTitle>Listing input</CardTitle>
       </CardHeader>

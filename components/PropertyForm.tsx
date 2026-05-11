@@ -37,11 +37,11 @@ export function PropertyForm({ value, onChange }: Props) {
     onChange({ ...value, [k]: v })
 
   return (
-    <Card className="property-form-card">
+    <Card size="sm" className="property-form-card">
       <CardHeader>
         <CardTitle>Property details</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Address" value={value.address} onChange={v => set('address', v as string | null)} />
         <Field label="Zoning" value={value.zoning} onChange={v => set('zoning', v as string | null)} />
         <Field label="Total sq ft" type="number" value={value.totalSqft} onChange={v => set('totalSqft', v as number | null)} />

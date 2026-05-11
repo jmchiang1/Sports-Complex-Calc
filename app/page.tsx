@@ -75,35 +75,28 @@ export default function Page() {
     })
 
   return (
-    <main className="max-w-[95vw] mx-auto w-full px-4 sm:px-6 py-6">
-      <div className="flex items-end justify-between mb-6 gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Facility analysis</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Paste a listing, refine the model, and get an instant verdict.
-          </p>
-        </div>
-        <SavedPropertiesSheet
-          onLoad={(row) => {
-            setListing(row.listing_json)
-            setAssumptions(row.assumptions_json)
-            setSavedId(row.id)
-          }}
-        />
-      </div>
-
+    <main className="max-w-[95vw] mx-auto w-full px-4 sm:px-6 py-4">
       <Tabs defaultValue="edit" className="w-full">
-        <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
-          <TabsTrigger value="edit">Edit</TabsTrigger>
-          <TabsTrigger value="verdict">Verdict</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+          <TabsList className="grid grid-cols-2 w-full max-w-sm">
+            <TabsTrigger value="edit">Edit</TabsTrigger>
+            <TabsTrigger value="verdict">Verdict</TabsTrigger>
+          </TabsList>
+          <SavedPropertiesSheet
+            onLoad={(row) => {
+              setListing(row.listing_json)
+              setAssumptions(row.assumptions_json)
+              setSavedId(row.id)
+            }}
+          />
+        </div>
 
         <TabsContent value="edit" className="edit-tab">
-          <div className="inputs-column mx-auto max-w-3xl space-y-4">
+          <div className="inputs-column mx-auto max-w-4xl space-y-3">
             <ListingInput onExtracted={(l) => setListing(l)} />
             <PropertyForm value={listing} onChange={setListing} />
 
-            <div className="save-analysis-bar surface p-4 flex flex-wrap items-center gap-2">
+            <div className="save-analysis-bar surface p-3 flex flex-wrap items-center gap-2">
               <Button onClick={save} disabled={pending}>
                 {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
               </Button>
@@ -120,10 +113,10 @@ export default function Page() {
         </TabsContent>
 
         <TabsContent value="verdict" className="verdict-tab">
-          <div className="analysis-column space-y-4">
+          <div className="analysis-column space-y-3">
             <VerdictHero result={result} address={listing.address} />
             <KpiCards result={result} />
-            <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-3">
               <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
               <RiskFlagsPanel flags={result.riskFlags} />
             </div>

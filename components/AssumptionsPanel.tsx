@@ -45,7 +45,7 @@ export function AssumptionsPanel({ value, onChange }: Props) {
   const [open, setOpen] = useState(false)
 
   return (
-    <Card className="assumptions-card">
+    <Card size="sm" className="assumptions-card">
       <Collapsible open={open} onOpenChange={(next) => setOpen(next)}>
         <CardHeader>
           <div className="flex w-full items-center justify-between gap-2">

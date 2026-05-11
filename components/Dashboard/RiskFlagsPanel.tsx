@@ -23,7 +23,7 @@ const severityStyles: Record<
 
 export function RiskFlagsPanel({ flags }: { flags: RiskFlag[] }) {
   return (
-    <div className="risk-flags-card surface p-5">
+    <div className="risk-flags-card surface p-4">
       <div className="flex items-baseline justify-between mb-4">
         <h3 className="text-sm font-semibold tracking-tight">Risks to confirm</h3>
         <span className="text-xs text-muted-foreground tabular-nums">

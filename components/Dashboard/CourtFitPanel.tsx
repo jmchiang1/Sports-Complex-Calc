@@ -16,7 +16,7 @@ export function CourtFitPanel({ result, listing, assumptions }: Props) {
   const enough = total >= target
 
   return (
-    <div className="court-fit-card surface p-5">
+    <div className="court-fit-card surface p-4">
       <div className="flex items-baseline justify-between mb-4">
         <h3 className="text-sm font-semibold tracking-tight">Court fit</h3>
         <span className="text-xs text-muted-foreground tabular-nums">

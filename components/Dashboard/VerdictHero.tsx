@@ -67,7 +67,7 @@ export function VerdictHero({
         style={{ background: 'radial-gradient(closest-side, var(--brand), transparent)' }}
       />
 
-      <div className="relative p-5 sm:p-6">
+      <div className="relative p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground">

@@ -30,7 +30,7 @@ export function SummaryPanel({ result, address }: Props) {
     })
 
   return (
-    <div className="summary-card surface p-5">
+    <div className="summary-card surface p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold tracking-tight">Summary</h3>
