@@ -96,24 +96,25 @@ export default function Page() {
 
         <TabsContent value="edit" className="edit-tab">
           <div className="inputs-column space-y-3">
-            <ListingInput onExtracted={(l) => setListing(l)} />
+            <ListingInput
+              onExtracted={(l) => setListing(l)}
+              headerAction={<BookmarkletHelper />}
+            />
             <PropertyForm
               value={listing}
               onChange={setListing}
               headerAction={<AssumptionsPanel value={assumptions} onChange={setAssumptions} />}
             />
 
-            <div className="save-analysis-bar surface p-3 flex flex-wrap items-center gap-2">
-              <Button onClick={save} disabled={pending}>
+            <div className="save-analysis-bar flex flex-wrap items-center justify-end gap-3 p-1">
+              {saveStatus && (
+                <span className="text-xs text-muted-foreground mr-auto">{saveStatus}</span>
+              )}
+              <Button variant="ghost" onClick={reset}>Reset</Button>
+              <Button size="lg" onClick={save} disabled={pending} className="px-6">
                 {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
               </Button>
-              <Button variant="ghost" onClick={reset}>Reset</Button>
-              {saveStatus && (
-                <span className="text-xs text-muted-foreground ml-auto">{saveStatus}</span>
-              )}
             </div>
-
-            <BookmarkletHelper />
           </div>
         </TabsContent>
 

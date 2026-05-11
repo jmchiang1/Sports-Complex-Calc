@@ -12,9 +12,11 @@ const URL_RE = /^https?:\/\/\S+$/
 
 interface Props {
   onExtracted: (listing: ExtractedListing, source: 'ai' | 'regex', error?: string) => void
+  /** Optional slot for header action(s) — e.g. a "How it works" button. */
+  headerAction?: React.ReactNode
 }
 
-export function ListingInput({ onExtracted }: Props) {
+export function ListingInput({ onExtracted, headerAction }: Props) {
   const [text, setText] = useState('')
   const [phase, setPhase] = useState<'idle' | 'fetching' | 'extracting'>('idle')
   const [pending, start] = useTransition()
@@ -89,7 +91,10 @@ export function ListingInput({ onExtracted }: Props) {
   return (
     <Card size="sm" className="listing-input-card">
       <CardHeader>
-        <CardTitle>Listing input</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>Listing input</CardTitle>
+          {headerAction}
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <Textarea
@@ -99,7 +104,7 @@ export function ListingInput({ onExtracted }: Props) {
             setText(e.target.value)
             editedRef.current = true
           }}
-          className="font-mono text-sm h-32 resize-none"
+          className="font-mono text-sm min-h-64 resize-none"
         />
         <div className="flex items-center gap-2">
           <Button
