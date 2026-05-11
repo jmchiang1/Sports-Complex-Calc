@@ -104,7 +104,7 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
             setText(e.target.value)
             editedRef.current = true
           }}
-          className="font-mono text-sm min-h-64 resize-none"
+          className="font-mono text-sm h-48 max-h-48 resize-none"
         />
         <div className="flex items-center gap-2">
           <Button
