@@ -33,13 +33,13 @@ export function SignInDialog({ children }: { children: React.ReactNode }) {
           <Label htmlFor="email">Email</Label>
           <Input id="email" name="email" type="email" required disabled={pending || !!sent} />
           {sent ? (
-            <p className="text-sm text-emerald-600">Magic link sent to {sent}. Check your inbox.</p>
+            <p className="text-sm text-emerald-300">Magic link sent to {sent}. Check your inbox.</p>
           ) : (
             <Button type="submit" disabled={pending} className="w-full">
               {pending ? 'Sending…' : 'Send magic link'}
             </Button>
           )}
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-rose-300">{error}</p>}
         </form>
       </DialogContent>
     </Dialog>

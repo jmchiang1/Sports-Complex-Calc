@@ -92,17 +92,17 @@ export function ListingInput({ onExtracted }: Props) {
           >
             {buttonLabel}
           </Button>
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-muted-foreground">
             {isUrl ? 'URL detected — will fetch and parse.' : 'or fill the form manually below.'}
           </span>
         </div>
         {status && !warning && (
-          <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
+          <p className="text-sm text-emerald-300 bg-emerald-400/10 ring-1 ring-emerald-400/20 rounded-md px-3 py-2">
             {status}
           </p>
         )}
         {warning && (
-          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+          <p className="text-sm text-amber-300 bg-amber-400/10 ring-1 ring-amber-400/20 rounded-md px-3 py-2">
             {warning}
           </p>
         )}

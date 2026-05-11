@@ -15,24 +15,30 @@ export async function Header() {
   }
 
   return (
-    <header className="bg-[#0a0f1c] text-white border-b border-[#1f2937]">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-semibold tracking-tight">
-          Kotofit Facility Analyzer
+    <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border">
+      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="relative inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 ring-1 ring-primary/30">
+            <span className="absolute inset-0 rounded-md bg-primary/30 blur-md opacity-60 group-hover:opacity-100 transition" />
+            <span className="relative h-2 w-2 rounded-full bg-primary" />
+          </span>
+          <span className="font-semibold tracking-tight text-foreground">
+            Kotofit <span className="text-muted-foreground font-normal">Facility Analyzer</span>
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="text-sm text-slate-300 mr-2">{user.email}</span>
+              <span className="hidden sm:inline text-xs text-muted-foreground mr-1">{user.email}</span>
               <form action={signOut}>
-                <Button type="submit" variant="ghost" size="sm" className="text-slate-200 hover:text-white">
+                <Button type="submit" variant="ghost" size="sm">
                   Sign out
                 </Button>
               </form>
             </>
           ) : (
             <SignInDialog>
-              <Button variant="ghost" size="sm" className="text-slate-200 hover:text-white">
+              <Button variant="ghost" size="sm">
                 Sign in
               </Button>
             </SignInDialog>

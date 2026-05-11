@@ -49,38 +49,50 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Dark, brand-forward palette. Background is a deep ink; surfaces are
+     elevated panels; brand accent is a vibrant cyan-teal ("court light"). */
+  --bg-base: oklch(0.16 0.012 250);          /* page background */
+  --bg-elevated: oklch(0.21 0.014 250);      /* card / panel */
+  --bg-elevated-2: oklch(0.25 0.014 250);    /* hovered / nested */
+  --brand: oklch(0.82 0.16 195);             /* cyan-teal accent */
+  --brand-strong: oklch(0.74 0.18 195);
+  --brand-soft: oklch(0.82 0.16 195 / 0.14);
+  --success: oklch(0.78 0.16 160);
+  --warning: oklch(0.82 0.17 75);
+  --danger: oklch(0.72 0.20 25);
+
+  --background: var(--bg-base);
+  --foreground: oklch(0.97 0.005 250);
+  --card: var(--bg-elevated);
+  --card-foreground: oklch(0.97 0.005 250);
+  --popover: var(--bg-elevated);
+  --popover-foreground: oklch(0.97 0.005 250);
+  --primary: var(--brand);
+  --primary-foreground: oklch(0.16 0.012 250);
+  --secondary: oklch(0.27 0.014 250);
+  --secondary-foreground: oklch(0.97 0.005 250);
+  --muted: oklch(0.25 0.012 250);
+  --muted-foreground: oklch(0.68 0.012 250);
+  --accent: var(--brand-soft);
+  --accent-foreground: var(--brand);
+  --destructive: var(--danger);
+  --border: oklch(1 0 0 / 0.08);
+  --input: oklch(1 0 0 / 0.10);
+  --ring: var(--brand);
+  --chart-1: oklch(0.82 0.16 195);
+  --chart-2: oklch(0.78 0.16 160);
+  --chart-3: oklch(0.72 0.14 270);
+  --chart-4: oklch(0.82 0.17 75);
+  --chart-5: oklch(0.55 0.02 250);
+  --radius: 0.75rem;
+  --sidebar: var(--bg-elevated);
+  --sidebar-foreground: oklch(0.97 0.005 250);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: oklch(0.16 0.012 250);
+  --sidebar-accent: oklch(0.27 0.014 250);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(1 0 0 / 0.08);
+  --sidebar-ring: var(--brand);
 }
 
 .dark {
@@ -123,12 +135,29 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.82 0.16 195 / 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, oklch(0.72 0.14 270 / 0.06), transparent 60%);
+    background-attachment: fixed;
   }
   html {
     @apply font-sans;
+    color-scheme: dark;
   }
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+}
+
+@utility surface {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+@utility surface-2 {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }

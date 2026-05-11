@@ -67,7 +67,7 @@ export function AssumptionsPanel({ value, onChange }: Props) {
           <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {fields.map(f => (
               <div key={f.key}>
-                <Label className="text-xs text-slate-600">{f.label}</Label>
+                <Label className="text-xs text-muted-foreground">{f.label}</Label>
                 <Input
                   type="number"
                   step={f.step}

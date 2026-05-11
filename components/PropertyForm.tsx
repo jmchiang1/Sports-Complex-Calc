@@ -18,7 +18,7 @@ const Field = (props: {
   step?: string
 }) => (
   <div>
-    <Label className="text-xs text-slate-600">{props.label}</Label>
+    <Label className="text-xs text-muted-foreground">{props.label}</Label>
     <Input
       type={props.type ?? 'text'}
       step={props.step}

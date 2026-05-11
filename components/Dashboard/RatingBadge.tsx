@@ -1,17 +1,17 @@
 import type { Rating } from '@/types/analysis'
 
 const styles: Record<Rating, string> = {
-  'Strong Candidate': 'bg-[#dcfce7] text-[#166534]',
-  'Worth Investigating': 'bg-[#fef3c7] text-[#92400e]',
-  'Risky': 'bg-[#ffedd5] text-[#9a3412]',
-  'Do Not Pursue': 'bg-[#fee2e2] text-[#991b1b]',
-  'Incomplete': 'bg-[#f1f5f9] text-[#475569]',
+  'Strong Candidate': 'bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/30',
+  'Worth Investigating': 'bg-cyan-400/15 text-cyan-300 ring-1 ring-cyan-400/30',
+  'Risky': 'bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/30',
+  'Do Not Pursue': 'bg-rose-400/15 text-rose-300 ring-1 ring-rose-400/30',
+  'Incomplete': 'bg-white/10 text-muted-foreground ring-1 ring-white/15',
 }
 
 export function RatingBadge({ rating }: { rating: Rating }) {
   return (
     <span
-      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${styles[rating]}`}
+      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap ${styles[rating]}`}
     >
       {rating}
     </span>

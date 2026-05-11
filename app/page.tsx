@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ListingInput } from '@/components/ListingInput'
 import { PropertyForm } from '@/components/PropertyForm'
 import { AssumptionsPanel } from '@/components/AssumptionsPanel'
-import { RatingBadge } from '@/components/Dashboard/RatingBadge'
+import { VerdictHero } from '@/components/Dashboard/VerdictHero'
 import { KpiCards } from '@/components/Dashboard/KpiCards'
 import { CourtFitPanel } from '@/components/Dashboard/CourtFitPanel'
 import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
@@ -74,9 +74,14 @@ export default function Page() {
     })
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-8 space-y-5">
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-slate-500">Paste a listing → review → save → compare.</div>
+    <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
+      <div className="flex items-end justify-between mb-6 gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Facility analysis</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Paste a listing, refine the model, and get an instant verdict.
+          </p>
+        </div>
         <SavedPropertiesSheet
           onLoad={(row) => {
             setListing(row.listing_json)
@@ -86,36 +91,37 @@ export default function Page() {
         />
       </div>
 
-      <ListingInput onExtracted={(l) => setListing(l)} />
-      <BookmarkletHelper />
-      <PropertyForm value={listing} onChange={setListing} />
-      <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Inputs column */}
+        <section className="lg:col-span-5 space-y-4 min-w-0">
+          <ListingInput onExtracted={(l) => setListing(l)} />
+          <BookmarkletHelper />
+          <PropertyForm value={listing} onChange={setListing} />
+          <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
 
-      <section className="space-y-4 pt-2">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">Analysis</h2>
-          <RatingBadge rating={result.rating} />
-        </div>
+          <div className="surface p-4 flex flex-wrap items-center gap-2">
+            <Button onClick={save} disabled={pending}>
+              {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
+            </Button>
+            <Button variant="ghost" onClick={reset}>Reset</Button>
+            <Button variant="ghost" onClick={exportJson}>Export JSON</Button>
+            {saveStatus && (
+              <span className="text-xs text-muted-foreground ml-auto">{saveStatus}</span>
+            )}
+          </div>
+        </section>
 
-        <KpiCards result={result} />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
-          <RiskFlagsPanel flags={result.riskFlags} />
-        </div>
-
-        <FinancialBreakdown result={result} />
-
-        <SummaryPanel result={result} address={listing.address} />
-      </section>
-
-      <div className="flex items-center gap-2 pt-3 border-t">
-        <Button onClick={save} disabled={pending}>
-          {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
-        </Button>
-        <Button variant="ghost" onClick={reset}>Reset</Button>
-        <Button variant="ghost" onClick={exportJson}>Export JSON</Button>
-        {saveStatus && <span className="text-sm text-slate-500 ml-2">{saveStatus}</span>}
+        {/* Analysis column — sticky on lg+ so it stays visible while editing */}
+        <section className="lg:col-span-7 space-y-4 min-w-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
+          <VerdictHero result={result} address={listing.address} />
+          <KpiCards result={result} />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
+            <RiskFlagsPanel flags={result.riskFlags} />
+          </div>
+          <FinancialBreakdown result={result} />
+          <SummaryPanel result={result} address={listing.address} />
+        </section>
       </div>
     </main>
   )

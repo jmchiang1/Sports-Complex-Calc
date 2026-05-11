@@ -31,17 +31,17 @@ export function SavedPropertiesSheet({ onLoad }: Props) {
           <SheetTitle>Saved properties</SheetTitle>
         </SheetHeader>
         <div className="mt-4 space-y-2">
-          {pending && <p className="text-sm text-slate-500">Loading…</p>}
+          {pending && <p className="text-sm text-muted-foreground">Loading…</p>}
           {!pending && rows.length === 0 && (
-            <p className="text-sm text-slate-500">No saved properties yet. Sign in and click Save.</p>
+            <p className="text-sm text-muted-foreground">No saved properties yet. Sign in and click Save.</p>
           )}
           {rows.map(r => (
-            <div key={r.id} className="border rounded-lg p-3 hover:bg-slate-50">
-              <div className="flex items-center justify-between">
+            <div key={r.id} className="border border-border rounded-lg p-3 hover:bg-white/5 transition-colors">
+              <div className="flex items-center justify-between gap-2">
                 <div className="font-medium text-sm truncate">{r.label || r.address || 'Untitled'}</div>
                 {r.rating && <RatingBadge rating={r.rating as Rating} />}
               </div>
-              <div className="text-xs text-slate-500 tabular-nums mt-1">
+              <div className="text-xs text-muted-foreground tabular-nums mt-1">
                 NOI {r.noi != null ? fmtMoney(r.noi) : '—'} · {r.total_courts ?? 0} courts ·{' '}
                 {r.payback_years != null ? `${Number(r.payback_years).toFixed(1)} yr payback` : 'no payback'}
               </div>

@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Sparkles } from 'lucide-react'
 import { generateSummary } from '@/app/actions/generate-summary'
 import type { AnalysisResult } from '@/types/analysis'
 
@@ -30,16 +30,32 @@ export function SummaryPanel({ result, address }: Props) {
     })
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-sm">Summary</CardTitle>
+    <div className="surface p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold tracking-tight">Summary</h3>
+          {source === 'ai' && (
+            <span className="text-[10px] uppercase tracking-wider text-cyan-300 bg-cyan-400/10 ring-1 ring-cyan-400/20 px-1.5 py-0.5 rounded">
+              AI
+            </span>
+          )}
+        </div>
         <Button size="sm" variant="ghost" onClick={refresh} disabled={pending}>
-          {pending ? 'Generating…' : source === 'ai' ? 'Regenerate' : 'Generate AI summary'}
+          <Sparkles className="size-3.5 mr-1" />
+          {pending ? 'Generating…' : source === 'ai' ? 'Regenerate' : 'AI summary'}
         </Button>
-      </CardHeader>
-      <CardContent>
-        {pending ? <Skeleton className="h-32 w-full" /> : <pre className="whitespace-pre-wrap text-sm font-sans leading-relaxed">{text}</pre>}
-      </CardContent>
-    </Card>
+      </div>
+      {pending ? (
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-11/12" />
+          <Skeleton className="h-4 w-9/12" />
+        </div>
+      ) : (
+        <pre className="whitespace-pre-wrap text-sm font-sans leading-relaxed text-muted-foreground">
+          {text}
+        </pre>
+      )}
+    </div>
   )
 }
