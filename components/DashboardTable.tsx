@@ -27,6 +27,7 @@ import {
 import { RatingBadge } from '@/components/Dashboard/RatingBadge'
 import { fmtMoney } from '@/lib/format'
 import { ArrowUp, ArrowDown, ArrowUpDown, MoreVertical, Pencil, Trash2, Eye } from 'lucide-react'
+import { calculateAnalysis } from '@/lib/calculator'
 import type { PropertyRow } from '@/lib/supabase/types'
 import type { Rating } from '@/types/analysis'
 
@@ -54,44 +55,64 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('created_at')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
 
+  // Recompute analysis fresh from listing_json + assumptions_json so the table
+  // always reflects the current calculator logic, not the stale snapshot
+  // columns stored in the DB at save time. Keeps the table consistent with
+  // the verdict modal (which also recomputes).
+  const enrichedRows = useMemo(() => {
+    return rows.map((r) => {
+      const result = calculateAnalysis({
+        listing: r.listing_json,
+        assumptions: r.assumptions_json,
+      })
+      return {
+        row: r,
+        rating: result.rating as Rating,
+        noi: result.noi,
+        totalCourts: result.courts.total,
+        paybackYears: result.paybackYears,
+      }
+    })
+  }, [rows])
+
   const filteredSorted = useMemo(() => {
     const needle = search.trim().toLowerCase()
-    let out = rows
+    let out = enrichedRows
     if (needle) {
-      out = out.filter((r) => {
-        const hay = `${r.label ?? ''} ${r.address ?? ''}`.toLowerCase()
+      out = out.filter(({ row }) => {
+        const hay = `${row.label ?? ''} ${row.address ?? ''}`.toLowerCase()
         return hay.includes(needle)
       })
     }
     if (ratingFilter !== 'all') {
-      out = out.filter((r) => r.rating === ratingFilter)
+      out = out.filter((e) => e.rating === ratingFilter)
     }
     const sign = sortDir === 'asc' ? 1 : -1
     out = [...out].sort((a, b) => {
       switch (sortKey) {
         case 'label': {
-          const av = (a.label || a.address || '').toLowerCase()
-          const bv = (b.label || b.address || '').toLowerCase()
+          const av = (a.row.label || a.row.address || '').toLowerCase()
+          const bv = (b.row.label || b.row.address || '').toLowerCase()
           return av.localeCompare(bv) * sign
         }
-        case 'rating': {
-          const av = a.rating ? RATING_ORDER[a.rating as Rating] : 99
-          const bv = b.rating ? RATING_ORDER[b.rating as Rating] : 99
+        case 'rating':
+          return (RATING_ORDER[a.rating] - RATING_ORDER[b.rating]) * sign
+        case 'noi':
+          return (a.noi - b.noi) * sign
+        case 'total_courts':
+          return (a.totalCourts - b.totalCourts) * sign
+        case 'payback_years': {
+          const av = a.paybackYears ?? Infinity
+          const bv = b.paybackYears ?? Infinity
           return (av - bv) * sign
         }
-        case 'noi':
-          return ((a.noi ?? -Infinity) - (b.noi ?? -Infinity)) * sign
-        case 'total_courts':
-          return ((a.total_courts ?? -1) - (b.total_courts ?? -1)) * sign
-        case 'payback_years':
-          return ((a.payback_years ?? Infinity) - (b.payback_years ?? Infinity)) * sign
         case 'created_at':
         default:
-          return (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * sign
+          return (new Date(a.row.created_at).getTime() - new Date(b.row.created_at).getTime()) * sign
       }
     })
     return out
-  }, [rows, search, ratingFilter, sortKey, sortDir])
+  }, [enrichedRows, search, ratingFilter, sortKey, sortDir])
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -156,7 +177,7 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
                 </TableCell>
               </TableRow>
             )}
-            {filteredSorted.map((row) => (
+            {filteredSorted.map(({ row, rating, noi, totalCourts, paybackYears }) => (
               <TableRow
                 key={row.id}
                 className="cursor-pointer hover:bg-white/[0.03]"
@@ -166,14 +187,12 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
                   {row.label || row.address || 'Untitled'}
                 </TableCell>
                 <TableCell>
-                  {row.rating ? <RatingBadge rating={row.rating as Rating} /> : <span className="text-muted-foreground text-xs">—</span>}
+                  <RatingBadge rating={rating} />
                 </TableCell>
+                <TableCell className="text-right tabular-nums">{fmtMoney(noi)}</TableCell>
+                <TableCell className="text-right tabular-nums">{totalCourts}</TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {row.noi != null ? fmtMoney(row.noi) : '—'}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">{row.total_courts ?? '—'}</TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {row.payback_years != null ? `${Number(row.payback_years).toFixed(1)} yr` : '—'}
+                  {paybackYears !== null ? `${paybackYears.toFixed(1)} yr` : '—'}
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-muted-foreground text-xs">
                   {formatDate(row.created_at)}
