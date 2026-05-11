@@ -7,7 +7,6 @@ const baseInput = {
   totalCourts: 6,
   noi: 250_000,
   noiMargin: 0.30,
-  rentBurden: 0.20,
   paybackYears: 2.0,
 }
 
@@ -24,20 +23,22 @@ describe('rateAnalysis', () => {
   it('returns Do Not Pursue when noi <= 0', () => {
     expect(rateAnalysis({ ...baseInput, noi: 0 })).toBe('Do Not Pursue')
   })
-  it('returns Do Not Pursue when rentBurden > 0.35', () => {
-    expect(rateAnalysis({ ...baseInput, rentBurden: 0.40 })).toBe('Do Not Pursue')
-  })
-  it('returns Strong Candidate when payback ≤ 2.5, margin ≥ 0.25, rentBurden ≤ 0.22', () => {
+  it('returns Strong Candidate when payback ≤ 2.5 and margin ≥ 0.25', () => {
     expect(rateAnalysis(baseInput)).toBe('Strong Candidate')
   })
+  it('still returns Strong Candidate when margin & payback are strong even with very high rent burden', () => {
+    // This is the case the user flagged: high NOI + great payback + strong margin
+    // should NOT be killed by a high rent share.
+    expect(rateAnalysis({ ...baseInput, noi: 528_000, noiMargin: 0.346, paybackYears: 1.4 })).toBe(
+      'Strong Candidate',
+    )
+  })
   it('returns Worth Investigating when payback ≤ 4 and margin ≥ 0.15', () => {
-    expect(rateAnalysis({ ...baseInput, paybackYears: 3.5, noiMargin: 0.18, rentBurden: 0.28 })).toBe(
+    expect(rateAnalysis({ ...baseInput, paybackYears: 3.5, noiMargin: 0.18 })).toBe(
       'Worth Investigating',
     )
   })
   it('returns Risky as the fallback', () => {
-    expect(rateAnalysis({ ...baseInput, paybackYears: 6, noiMargin: 0.10, rentBurden: 0.30 })).toBe(
-      'Risky',
-    )
+    expect(rateAnalysis({ ...baseInput, paybackYears: 6, noiMargin: 0.10 })).toBe('Risky')
   })
 })

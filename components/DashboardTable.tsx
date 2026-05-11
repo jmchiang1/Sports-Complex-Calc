@@ -117,7 +117,7 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
           onValueChange={(v) => setRatingFilter(v as 'all' | Rating)}
         >
           <SelectTrigger className="w-56">
-            <SelectValue placeholder="Rating: All" />
+            <SelectValue placeholder="Rating: All Properties" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Rating: All</SelectItem>

@@ -90,7 +90,6 @@ export function calculateAnalysis(input: AnalysisInput): AnalysisResult {
     totalCourts: courts.total,
     noi,
     noiMargin,
-    rentBurden,
     paybackYears,
   })
 

@@ -161,13 +161,15 @@ describe('calculateAnalysis (full result)', () => {
       assumptions: DEFAULT_ASSUMPTIONS,
     })
 
-    expect(result.rating).toBe('Do Not Pursue')              // rentBurden > 0.35
+    // Spec example: slow payback (~12yr) + thin margin (~7%) → Risky.
+    // High rent burden is surfaced as a flag, not a rating downgrade.
+    expect(result.rating).toBe('Risky')
     const flagIds = result.riskFlags.map(f => f.id)
     expect(flagIds).toContain('low-clear-height')
     expect(flagIds).toContain('too-few-courts')
     expect(flagIds).toContain('high-rent-burden')
     expect(flagIds).toContain('office-space')
     expect(flagIds).toContain('zoning')
-    expect(result.summary).toMatch(/Do Not Pursue/)
+    expect(result.summary).toMatch(/Risky/)
   })
 })
