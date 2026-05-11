@@ -88,7 +88,7 @@ export function EditorSheet({ initial, onClose, onSaved }: Props) {
         if (!next) onClose()
       }}
     >
-      <SheetContent className="editor-sheet sm:max-w-[80vw] xl:max-w-[70vw] w-full overflow-y-auto p-0">
+      <SheetContent className="editor-sheet w-full overflow-y-auto p-0 data-[side=right]:sm:max-w-[90vw] data-[side=right]:lg:max-w-[80vw] data-[side=right]:xl:max-w-[70vw]">
         <div className="flex flex-col min-h-full">
           <SheetHeader className="border-b border-border px-5 py-4 sticky top-0 bg-background/95 backdrop-blur z-10">
             <SheetTitle>{savedId ? 'Edit property' : 'Add new property'}</SheetTitle>
