@@ -32,11 +32,11 @@ export function KpiCards({ result }: { result: AnalysisResult }) {
   ]
 
   return (
-    <div className="kpi-cards-row grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="kpi-cards-row grid grid-cols-2 sm:grid-cols-4 gap-4">
       {items.map((i) => (
         <div
           key={i.label}
-          className="surface px-3.5 py-3 group hover:border-white/15 transition-colors"
+          className="surface px-4 py-4 group hover:border-white/15 transition-colors"
         >
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
             {i.label}

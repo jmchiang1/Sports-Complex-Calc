@@ -95,7 +95,7 @@ export default function Page() {
         </div>
 
         <TabsContent value="edit" className="edit-tab">
-          <div className="inputs-column space-y-3">
+          <div className="inputs-column space-y-4">
             <ListingInput
               onExtracted={(l) => setListing(l)}
               headerAction={<BookmarkletHelper />}
@@ -119,10 +119,10 @@ export default function Page() {
         </TabsContent>
 
         <TabsContent value="verdict" className="verdict-tab">
-          <div className="analysis-column space-y-3">
+          <div className="analysis-column space-y-4">
             <VerdictHero result={result} address={listing.address} />
             <KpiCards result={result} />
-            <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-3">
+            <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-4">
               <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
               <RiskFlagsPanel flags={result.riskFlags} />
             </div>

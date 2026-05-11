@@ -18,7 +18,7 @@ export function FinancialBreakdown({ result }: { result: AnalysisResult }) {
   const max = Math.max(...expenseData.map((d) => d.value))
 
   return (
-    <div className="financial-breakdown-card surface p-4">
+    <div className="financial-breakdown-card surface p-5">
       <div className="flex items-baseline justify-between mb-4">
         <h3 className="text-sm font-semibold tracking-tight">Annual revenue & expenses</h3>
         <span

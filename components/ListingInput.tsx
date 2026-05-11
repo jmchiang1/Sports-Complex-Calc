@@ -89,7 +89,7 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
       : 'Extract with AI'
 
   return (
-    <Card size="sm" className="listing-input-card">
+    <Card className="listing-input-card">
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle>Listing input</CardTitle>
