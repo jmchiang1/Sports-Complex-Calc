@@ -66,7 +66,7 @@ export function AssumptionsPanel({ value, onChange }: Props) {
         </DialogHeader>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto pr-1">
           {fields.map(f => (
-            <div key={f.key}>
+            <div key={f.key} className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">{f.label}</Label>
               <Input
                 type="number"

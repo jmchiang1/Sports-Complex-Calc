@@ -19,7 +19,7 @@ const Field = (props: {
   onChange: (v: string | number | null) => void
   step?: string
 }) => (
-  <div>
+  <div className="space-y-1.5">
     <Label className="text-xs text-muted-foreground">{props.label}</Label>
     <Input
       type={props.type ?? 'text'}
