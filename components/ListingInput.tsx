@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,11 @@ export function ListingInput({ onExtracted }: Props) {
   const [warning, setWarning] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
 
+  // Track whether the user has manually edited the textarea. We only prompt
+  // before overwriting when the content is user-typed — not when it came from
+  // a previous bookmarklet drop (which is already processed into the form).
+  const editedRef = useRef(false)
+
   // Read text from #import= hash (bookmarklet drop point). Runs on mount AND
   // on hashchange so a reused tab (window.open with named target) also fires.
   useEffect(() => {
@@ -40,7 +45,16 @@ export function ListingInput({ onExtracted }: Props) {
 
       if (!imported.trim()) return
 
+      // If the user was mid-edit, ask before clobbering their work.
+      if (editedRef.current) {
+        const ok = window.confirm(
+          'A bookmarklet import is replacing the listing input you were editing. Continue?',
+        )
+        if (!ok) return
+      }
+
       setText(imported)
+      editedRef.current = false
       setWarning(null)
       setStatus(`Loaded ${imported.length.toLocaleString()} chars from bookmarklet — extracting…`)
 
@@ -82,7 +96,10 @@ export function ListingInput({ onExtracted }: Props) {
           rows={8}
           placeholder="Paste a LoopNet/Crexi URL — or paste listing text directly..."
           value={text}
-          onChange={e => setText(e.target.value)}
+          onChange={e => {
+            setText(e.target.value)
+            editedRef.current = true
+          }}
           className="font-mono text-sm"
         />
         <div className="flex items-center gap-2">
