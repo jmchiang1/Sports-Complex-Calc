@@ -5,7 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { extractListing } from '@/app/actions/extract-listing'
+import { fetchListingText } from '@/app/actions/fetch-listing'
 import type { ExtractedListing } from '@/types/analysis'
+
+const URL_RE = /^https?:\/\/\S+$/
 
 interface Props {
   onExtracted: (listing: ExtractedListing, source: 'ai' | 'regex', error?: string) => void
@@ -13,8 +16,20 @@ interface Props {
 
 export function ListingInput({ onExtracted }: Props) {
   const [text, setText] = useState('')
+  const [phase, setPhase] = useState<'idle' | 'fetching' | 'extracting'>('idle')
   const [pending, start] = useTransition()
   const [warning, setWarning] = useState<string | null>(null)
+  const [status, setStatus] = useState<string | null>(null)
+
+  const isUrl = URL_RE.test(text.trim())
+
+  const buttonLabel = pending
+    ? phase === 'fetching'
+      ? 'Fetching URL…'
+      : 'Extracting…'
+    : isUrl
+      ? 'Fetch & Extract'
+      : 'Extract with AI'
 
   return (
     <Card>
@@ -24,7 +39,7 @@ export function ListingInput({ onExtracted }: Props) {
       <CardContent className="space-y-3">
         <Textarea
           rows={8}
-          placeholder="Paste listing text from LoopNet, Crexi, broker email, etc..."
+          placeholder="Paste a LoopNet/Crexi URL — or paste listing text directly..."
           value={text}
           onChange={e => setText(e.target.value)}
           className="font-mono text-sm"
@@ -35,19 +50,43 @@ export function ListingInput({ onExtracted }: Props) {
             onClick={() =>
               start(async () => {
                 setWarning(null)
-                const r = await extractListing(text)
+                setStatus(null)
+
+                let payload = text
+                if (isUrl) {
+                  setPhase('fetching')
+                  const f = await fetchListingText(text)
+                  if (f.error || !f.text) {
+                    setWarning(`URL fetch failed: ${f.error ?? 'no content'}`)
+                    setPhase('idle')
+                    return
+                  }
+                  payload = f.text
+                  setStatus(`Fetched ${f.text.length.toLocaleString()} chars from URL.`)
+                }
+
+                setPhase('extracting')
+                const r = await extractListing(payload)
                 if (r.source === 'regex' && r.error) setWarning(r.error)
                 onExtracted(r.listing, r.source, r.error)
+                setPhase('idle')
               })
             }
           >
-            {pending ? 'Extracting…' : 'Extract with AI'}
+            {buttonLabel}
           </Button>
-          <span className="text-sm text-slate-500">or fill the form manually below.</span>
+          <span className="text-sm text-slate-500">
+            {isUrl ? 'URL detected — will fetch and parse.' : 'or fill the form manually below.'}
+          </span>
         </div>
+        {status && !warning && (
+          <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
+            {status}
+          </p>
+        )}
         {warning && (
           <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-            {warning} Used local parser — please double-check fields.
+            {warning}
           </p>
         )}
       </CardContent>
