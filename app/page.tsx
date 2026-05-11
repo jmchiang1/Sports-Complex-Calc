@@ -13,6 +13,7 @@ import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
 import { SavedPropertiesSheet } from '@/components/SavedPropertiesSheet'
 import { BookmarkletHelper } from '@/components/BookmarkletHelper'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { calculateAnalysis } from '@/lib/calculator'
 import { DEFAULT_ASSUMPTIONS, EMPTY_LISTING } from '@/lib/constants'
 import { saveProperty } from '@/app/actions/save-property'
@@ -91,39 +92,46 @@ export default function Page() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Inputs column */}
-        <section className="inputs-column lg:col-span-5 space-y-4 min-w-0">
-          <ListingInput onExtracted={(l) => setListing(l)} />
-          <PropertyForm value={listing} onChange={setListing} />
+      <Tabs defaultValue="edit" className="w-full">
+        <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
+          <TabsTrigger value="edit">Edit</TabsTrigger>
+          <TabsTrigger value="verdict">Verdict</TabsTrigger>
+        </TabsList>
 
-          <div className="save-analysis-bar surface p-4 flex flex-wrap items-center gap-2">
-            <Button onClick={save} disabled={pending}>
-              {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
-            </Button>
-            <Button variant="ghost" onClick={reset}>Reset</Button>
-            <Button variant="ghost" onClick={exportJson}>Export JSON</Button>
-            {saveStatus && (
-              <span className="text-xs text-muted-foreground ml-auto">{saveStatus}</span>
-            )}
+        <TabsContent value="edit" className="edit-tab">
+          <div className="inputs-column mx-auto max-w-3xl space-y-4">
+            <ListingInput onExtracted={(l) => setListing(l)} />
+            <PropertyForm value={listing} onChange={setListing} />
+
+            <div className="save-analysis-bar surface p-4 flex flex-wrap items-center gap-2">
+              <Button onClick={save} disabled={pending}>
+                {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
+              </Button>
+              <Button variant="ghost" onClick={reset}>Reset</Button>
+              <Button variant="ghost" onClick={exportJson}>Export JSON</Button>
+              {saveStatus && (
+                <span className="text-xs text-muted-foreground ml-auto">{saveStatus}</span>
+              )}
+            </div>
+
+            <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
+            <BookmarkletHelper />
           </div>
+        </TabsContent>
 
-          <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
-          <BookmarkletHelper />
-        </section>
-
-        {/* Analysis column — sticky on lg+ so it stays visible while editing */}
-        <section className="analysis-column lg:col-span-7 space-y-4 min-w-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
-          <VerdictHero result={result} address={listing.address} />
-          <KpiCards result={result} />
-          <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
-            <RiskFlagsPanel flags={result.riskFlags} />
+        <TabsContent value="verdict" className="verdict-tab">
+          <div className="analysis-column space-y-4">
+            <VerdictHero result={result} address={listing.address} />
+            <KpiCards result={result} />
+            <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
+              <RiskFlagsPanel flags={result.riskFlags} />
+            </div>
+            <FinancialBreakdown result={result} />
+            <SummaryPanel result={result} address={listing.address} />
           </div>
-          <FinancialBreakdown result={result} />
-          <SummaryPanel result={result} address={listing.address} />
-        </section>
-      </div>
+        </TabsContent>
+      </Tabs>
     </main>
   )
 }

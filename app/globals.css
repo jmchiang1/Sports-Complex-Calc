@@ -162,3 +162,20 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
+/* Smooth open/close animation for base-ui Collapsible panels.
+   The panel exposes --collapsible-panel-height; we transition height
+   between 0 (closed) and that natural height (open). */
+[data-slot="collapsible-content"] {
+  overflow: hidden;
+  transition-property: height, opacity;
+  transition-duration: 220ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-slot="collapsible-content"][data-state="open"] {
+  height: var(--collapsible-panel-height);
+  opacity: 1;
+}
+[data-slot="collapsible-content"][data-state="closed"] {
+  height: 0;
+  opacity: 0;
+}
