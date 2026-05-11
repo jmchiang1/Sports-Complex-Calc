@@ -42,11 +42,52 @@ export function calculateExpenses(input: {
   return { rent, payroll, utilities, insurance, maintenance, royalty, marketing, miscAdmin, total }
 }
 
-export function calculateStartupCost(totalSqft: number, a: Assumptions) {
+export function calculateStartupCost(input: {
+  totalSqft: number
+  warehouseSqft: number
+  officeSqft: number
+  totalCourts: number
+  a: Assumptions
+}) {
+  const { totalSqft, warehouseSqft, officeSqft, totalCourts, a } = input
+
+  const hvac = totalSqft * a.renovationHvacPerSqft
+  const electrical = totalSqft * a.renovationElectricalPerSqft
+  const courtLighting = warehouseSqft * a.renovationCourtLightingPerSqft
+  const plumbing = totalSqft * a.renovationPlumbingPerSqft
+  const courtFlooring = warehouseSqft * a.renovationCourtFlooringPerSqft
+  const walls = totalSqft * a.renovationWallsPerSqft
+  const officeBuildout = officeSqft * a.renovationOfficeBuildoutPerSqft
+  const bathrooms = a.renovationBathroomCost * a.renovationBathroomCount
+  const courtEquipment = totalCourts * a.renovationCourtEquipmentPerCourt
+
+  const subtotal =
+    hvac + electrical + courtLighting + plumbing + courtFlooring +
+    walls + officeBuildout + bathrooms + courtEquipment
+
+  const permitsDesign = subtotal * a.renovationPermitsDesignPct
+  const contingency = subtotal * a.renovationContingencyPct
+
+  const mid = subtotal + permitsDesign + contingency + a.franchiseFee
+
   return {
-    low: totalSqft * a.renovationPerSqftLow + a.franchiseFee,
-    mid: totalSqft * a.renovationPerSqftMid + a.franchiseFee,
-    high: totalSqft * a.renovationPerSqftHigh + a.franchiseFee,
+    low: mid * 0.85,
+    mid,
+    high: mid * 1.30,
+    breakdown: [
+      { label: 'HVAC', amount: hvac },
+      { label: 'Electrical', amount: electrical },
+      { label: 'Court lighting', amount: courtLighting },
+      { label: 'Plumbing', amount: plumbing },
+      { label: 'Court flooring', amount: courtFlooring },
+      { label: 'Walls & finishes', amount: walls },
+      { label: 'Office buildout', amount: officeBuildout },
+      { label: 'Bathrooms', amount: bathrooms },
+      { label: 'Court equipment', amount: courtEquipment },
+      { label: 'Permits & design', amount: permitsDesign },
+      { label: 'Contingency', amount: contingency },
+      { label: 'Franchise fee', amount: a.franchiseFee },
+    ],
   }
 }
 
@@ -81,7 +122,14 @@ export function calculateAnalysis(input: AnalysisInput): AnalysisResult {
   const rentBurden = revenue.gross > 0 ? expenses.rent / revenue.gross : 0
   const revenuePerSqft = totalSqft > 0 ? revenue.gross / totalSqft : 0
 
-  const startupCost = calculateStartupCost(totalSqft, assumptions)
+  const officeSqft = listing.officeSqft ?? 0
+  const startupCost = calculateStartupCost({
+    totalSqft,
+    warehouseSqft,
+    officeSqft,
+    totalCourts: courts.total,
+    a: assumptions,
+  })
   const paybackYears = calculatePaybackYears(startupCost.mid, noi)
 
   const rating = rateAnalysis({

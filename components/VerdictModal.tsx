@@ -8,9 +8,11 @@ import { CourtFitPanel } from '@/components/Dashboard/CourtFitPanel'
 import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
 import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
+import { StartupCostBreakdown } from '@/components/Dashboard/StartupCostBreakdown'
 import { Pencil, Trash2, MapPin } from 'lucide-react'
 import type { PropertyRow } from '@/lib/supabase/types'
 import { calculateAnalysis } from '@/lib/calculator'
+import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
 import { useMemo } from 'react'
 
 interface Props {
@@ -27,7 +29,9 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
     if (!property) return null
     return calculateAnalysis({
       listing: property.listing_json,
-      assumptions: property.assumptions_json,
+      // Merge with defaults so old saved properties (missing the new
+      // renovation-breakdown fields) still compute correctly.
+      assumptions: { ...DEFAULT_ASSUMPTIONS, ...property.assumptions_json },
     })
   }, [property])
 
@@ -96,6 +100,7 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
               <RiskFlagsPanel flags={result.riskFlags} />
             </div>
             <FinancialBreakdown result={result} />
+            <StartupCostBreakdown result={result} />
             <SummaryPanel result={result} address={property.address} />
           </div>
         )}

@@ -34,7 +34,8 @@ export function EditorSheet({ initial, onClose, onSaved }: Props) {
     if (!initial) return
     if (initial.row) {
       setListing(initial.row.listing_json)
-      setAssumptions(initial.row.assumptions_json)
+      // Merge with defaults to fill in any fields missing from older saves.
+      setAssumptions({ ...DEFAULT_ASSUMPTIONS, ...initial.row.assumptions_json })
       setSavedId(initial.row.id)
     } else {
       setListing({ ...EMPTY_LISTING })

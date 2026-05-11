@@ -21,9 +21,20 @@ export const DEFAULT_ASSUMPTIONS: Assumptions = {
   royaltyPct: 0.07,
   marketingPct: 0.025,
   miscAdminPct: 0.02,
-  renovationPerSqftLow: 18,
-  renovationPerSqftMid: 28,
-  renovationPerSqftHigh: 45,
+
+  // Renovation line items
+  renovationHvacPerSqft: 8,
+  renovationElectricalPerSqft: 5,
+  renovationCourtLightingPerSqft: 4,
+  renovationPlumbingPerSqft: 3,
+  renovationCourtFlooringPerSqft: 5,
+  renovationWallsPerSqft: 3,
+  renovationOfficeBuildoutPerSqft: 40,
+  renovationBathroomCost: 15_000,
+  renovationBathroomCount: 2,
+  renovationCourtEquipmentPerCourt: 2_500,
+  renovationPermitsDesignPct: 0.08,
+  renovationContingencyPct: 0.12,
   franchiseFee: 40_000,
 }
 

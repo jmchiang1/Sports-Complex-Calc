@@ -32,10 +32,26 @@ export interface Assumptions {
   royaltyPct: number
   marketingPct: number
   miscAdminPct: number
-  renovationPerSqftLow: number
-  renovationPerSqftMid: number
-  renovationPerSqftHigh: number
+
+  // Renovation line items
+  renovationHvacPerSqft: number
+  renovationElectricalPerSqft: number
+  renovationCourtLightingPerSqft: number   // applied to warehouseSqft
+  renovationPlumbingPerSqft: number
+  renovationCourtFlooringPerSqft: number   // applied to warehouseSqft
+  renovationWallsPerSqft: number
+  renovationOfficeBuildoutPerSqft: number  // applied to officeSqft
+  renovationBathroomCost: number           // per bathroom
+  renovationBathroomCount: number          // # of bathrooms
+  renovationCourtEquipmentPerCourt: number // nets, posts, etc.
+  renovationPermitsDesignPct: number       // % of subtotal
+  renovationContingencyPct: number         // % of subtotal
   franchiseFee: number
+}
+
+export interface StartupCostLineItem {
+  label: string
+  amount: number
 }
 
 export interface AnalysisInput {
@@ -85,7 +101,12 @@ export interface AnalysisResult {
   monthlyRevenue: number
   rentBurden: number
   revenuePerSqft: number
-  startupCost: { low: number; mid: number; high: number }
+  startupCost: {
+    low: number
+    mid: number
+    high: number
+    breakdown: StartupCostLineItem[]
+  }
   paybackYears: number | null
   rating: Rating
   riskFlags: RiskFlag[]

@@ -76,11 +76,25 @@ describe('calculateExpenses', () => {
 import { calculateStartupCost, calculatePaybackYears } from '../calculator'
 
 describe('calculateStartupCost', () => {
-  it('matches spec for 12,500 sf', () => {
-    const r = calculateStartupCost(12_500, DEFAULT_ASSUMPTIONS)
-    expect(r.low).toBe(12_500 * 18 + 40_000)   // 265,000
-    expect(r.mid).toBe(12_500 * 28 + 40_000)   // 390,000
-    expect(r.high).toBe(12_500 * 45 + 40_000)  // 602,500
+  it('detailed breakdown for spec example (12,500 sf / 10K warehouse / 2.5K office / 4 courts)', () => {
+    const r = calculateStartupCost({
+      totalSqft: 12_500,
+      warehouseSqft: 10_000,
+      officeSqft: 2_500,
+      totalCourts: 4,
+      a: DEFAULT_ASSUMPTIONS,
+    })
+    // HVAC 100k + Electrical 62.5k + Court lighting 40k + Plumbing 37.5k +
+    // Court flooring 50k + Walls 37.5k + Office buildout 100k +
+    // Bathrooms 30k + Court equipment 10k = subtotal 467,500
+    // Permits 8% = 37,400; Contingency 12% = 56,100
+    // Total ren = 561,000; + franchise 40k = 601,000
+    expect(r.mid).toBe(601_000)
+    expect(r.low).toBeCloseTo(601_000 * 0.85, 2)
+    expect(r.high).toBeCloseTo(601_000 * 1.30, 2)
+    expect(r.breakdown.find(b => b.label === 'HVAC')?.amount).toBe(100_000)
+    expect(r.breakdown.find(b => b.label === 'Bathrooms')?.amount).toBe(30_000)
+    expect(r.breakdown.find(b => b.label === 'Franchise fee')?.amount).toBe(40_000)
   })
 })
 
@@ -123,8 +137,8 @@ describe('calculateAnalysis (orchestrator)', () => {
     expect(result.monthlyRent).toBeCloseTo(20_833.33, 2)
     expect(result.monthlyRevenue).toBeCloseTo(39_679.47, 2)
     expect(result.revenuePerSqft).toBeCloseTo(38.09, 2)
-    expect(result.startupCost.mid).toBe(390_000)
-    expect(result.paybackYears).toBeCloseTo(12.27, 2)
+    expect(result.startupCost.mid).toBe(601_000)
+    expect(result.paybackYears).toBeCloseTo(601_000 / 31_792.736, 2)
   })
 
   it('falls back to totalSqft when warehouseSqft is null', () => {

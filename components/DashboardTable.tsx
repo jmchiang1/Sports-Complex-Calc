@@ -28,6 +28,7 @@ import { RatingBadge } from '@/components/Dashboard/RatingBadge'
 import { fmtMoney } from '@/lib/format'
 import { ArrowUp, ArrowDown, ArrowUpDown, MoreVertical, Pencil, Trash2, Eye, MapPin } from 'lucide-react'
 import { calculateAnalysis } from '@/lib/calculator'
+import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
 import type { PropertyRow } from '@/lib/supabase/types'
 import type { Rating } from '@/types/analysis'
 
@@ -63,7 +64,9 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
     return rows.map((r) => {
       const result = calculateAnalysis({
         listing: r.listing_json,
-        assumptions: r.assumptions_json,
+        // Merge with defaults so older saved properties (missing new fields)
+        // compute correctly.
+        assumptions: { ...DEFAULT_ASSUMPTIONS, ...r.assumptions_json },
       })
       return {
         row: r,
