@@ -8,6 +8,8 @@ import type { ExtractedListing } from '@/types/analysis'
 interface Props {
   value: ExtractedListing
   onChange: (next: ExtractedListing) => void
+  /** Optional slot for header action(s) — e.g. an Assumptions button. */
+  headerAction?: React.ReactNode
 }
 
 const Field = (props: {
@@ -32,14 +34,17 @@ const Field = (props: {
   </div>
 )
 
-export function PropertyForm({ value, onChange }: Props) {
+export function PropertyForm({ value, onChange, headerAction }: Props) {
   const set = <K extends keyof ExtractedListing>(k: K, v: ExtractedListing[K]) =>
     onChange({ ...value, [k]: v })
 
   return (
     <Card size="sm" className="property-form-card">
       <CardHeader>
-        <CardTitle>Property details</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>Property details</CardTitle>
+          {headerAction}
+        </div>
       </CardHeader>
       <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Address" value={value.address} onChange={v => set('address', v as string | null)} />

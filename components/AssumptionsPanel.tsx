@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChevronDown } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import type { Assumptions } from '@/types/analysis'
 import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
 
@@ -42,17 +40,20 @@ const fields: Array<{ key: keyof Assumptions; label: string; step?: string }> = 
 ]
 
 export function AssumptionsPanel({ value, onChange }: Props) {
-  const [open, setOpen] = useState(false)
-
   return (
-    <Card size="sm" className="assumptions-card">
-      <Collapsible open={open} onOpenChange={(next) => setOpen(next)}>
-        <CardHeader>
-          <div className="flex w-full items-center justify-between gap-2">
-            <CollapsibleTrigger className="flex flex-1 items-center justify-between text-left">
-              <CardTitle>Assumptions</CardTitle>
-              <ChevronDown className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
-            </CollapsibleTrigger>
+    <Dialog>
+      <DialogTrigger
+        render={
+          <Button type="button" variant="outline" size="sm" className="assumptions-trigger gap-2">
+            <SlidersHorizontal className="size-4" />
+            Assumptions
+          </Button>
+        }
+      />
+      <DialogContent className="assumptions-dialog sm:max-w-2xl">
+        <DialogHeader>
+          <div className="flex items-center justify-between gap-2 pr-6">
+            <DialogTitle>Assumptions</DialogTitle>
             <Button
               type="button"
               variant="ghost"
@@ -62,23 +63,21 @@ export function AssumptionsPanel({ value, onChange }: Props) {
               Reset to defaults
             </Button>
           </div>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {fields.map(f => (
-              <div key={f.key}>
-                <Label className="text-xs text-muted-foreground">{f.label}</Label>
-                <Input
-                  type="number"
-                  step={f.step}
-                  value={value[f.key]}
-                  onChange={e => onChange({ ...value, [f.key]: Number(e.target.value) })}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+        </DialogHeader>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto pr-1">
+          {fields.map(f => (
+            <div key={f.key}>
+              <Label className="text-xs text-muted-foreground">{f.label}</Label>
+              <Input
+                type="number"
+                step={f.step}
+                value={value[f.key]}
+                onChange={e => onChange({ ...value, [f.key]: Number(e.target.value) })}
+              />
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

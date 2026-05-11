@@ -13,8 +13,15 @@ function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
 }
 
 function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
+  // keepMounted=true so the closing animation can play before the panel
+  // is removed from the DOM (otherwise base-ui unmounts on close and the
+  // animation never gets to render).
   return (
-    <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
+    <CollapsiblePrimitive.Panel
+      data-slot="collapsible-content"
+      keepMounted
+      {...props}
+    />
   )
 }
 

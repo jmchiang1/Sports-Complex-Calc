@@ -82,32 +82,37 @@ export default function Page() {
             <TabsTrigger value="edit">Edit</TabsTrigger>
             <TabsTrigger value="verdict">Verdict</TabsTrigger>
           </TabsList>
-          <SavedPropertiesSheet
-            onLoad={(row) => {
-              setListing(row.listing_json)
-              setAssumptions(row.assumptions_json)
-              setSavedId(row.id)
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={exportJson}>Export JSON</Button>
+            <SavedPropertiesSheet
+              onLoad={(row) => {
+                setListing(row.listing_json)
+                setAssumptions(row.assumptions_json)
+                setSavedId(row.id)
+              }}
+            />
+          </div>
         </div>
 
         <TabsContent value="edit" className="edit-tab">
           <div className="inputs-column space-y-3">
             <ListingInput onExtracted={(l) => setListing(l)} />
-            <PropertyForm value={listing} onChange={setListing} />
+            <PropertyForm
+              value={listing}
+              onChange={setListing}
+              headerAction={<AssumptionsPanel value={assumptions} onChange={setAssumptions} />}
+            />
 
             <div className="save-analysis-bar surface p-3 flex flex-wrap items-center gap-2">
               <Button onClick={save} disabled={pending}>
                 {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
               </Button>
               <Button variant="ghost" onClick={reset}>Reset</Button>
-              <Button variant="ghost" onClick={exportJson}>Export JSON</Button>
               {saveStatus && (
                 <span className="text-xs text-muted-foreground ml-auto">{saveStatus}</span>
               )}
             </div>
 
-            <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
             <BookmarkletHelper />
           </div>
         </TabsContent>
