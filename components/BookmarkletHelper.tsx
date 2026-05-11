@@ -1,9 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown, Bookmark } from 'lucide-react'
+
+function escapeHtmlAttr(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
 
 /**
  * The bookmarklet source. When clicked on any listing page, it:
@@ -32,14 +36,35 @@ export function BookmarkletHelper() {
   const [origin, setOrigin] = useState('')
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const linkHostRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     setOrigin(window.location.origin)
   }, [])
 
+  // Suppress click on the in-app bookmarklet link — it's only for dragging.
+  // (Clicking it would run the bookmarklet against our OWN page, which is junk.)
+  useEffect(() => {
+    const host = linkHostRef.current
+    if (!host) return
+    const handler = (e: Event) => {
+      if ((e.target as HTMLElement)?.closest('a[data-bookmarklet]')) {
+        e.preventDefault()
+      }
+    }
+    host.addEventListener('click', handler)
+    return () => host.removeEventListener('click', handler)
+  }, [origin])
+
   if (!origin) return null
 
   const href = buildBookmarklet(origin)
+  // React 19 sanitizes `javascript:` URLs out of <a href> at render time, which
+  // breaks drag-to-bookmark. Inject the anchor as raw HTML to bypass that.
+  const linkHtml =
+    `<a href="${escapeHtmlAttr(href)}" data-bookmarklet ` +
+    `class="inline-block px-2 py-1 rounded bg-primary text-primary-foreground ` +
+    `font-medium no-underline hover:opacity-90 cursor-grab">📌 Save to Kotofit</a>`
 
   const copyToClipboard = async () => {
     try {
@@ -73,13 +98,7 @@ export function BookmarkletHelper() {
               <li>Make sure your browser&apos;s bookmarks bar is visible (View → Show Bookmarks Bar)</li>
               <li>
                 Drag this link to your bookmarks bar:{' '}
-                <a
-                  href={href}
-                  onClick={(e) => e.preventDefault()}
-                  className="inline-block px-2 py-1 rounded bg-primary text-primary-foreground font-medium no-underline hover:opacity-90"
-                >
-                  📌 Save to Kotofit
-                </a>
+                <span ref={linkHostRef} dangerouslySetInnerHTML={{ __html: linkHtml }} />
               </li>
               <li>Open any listing page (LoopNet, Crexi, broker site, etc.)</li>
               <li>Click the bookmarklet — a new tab opens here with the page text pre-loaded</li>
