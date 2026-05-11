@@ -93,14 +93,13 @@ export function ListingInput({ onExtracted }: Props) {
       </CardHeader>
       <CardContent className="space-y-3">
         <Textarea
-          rows={8}
           placeholder="Paste a LoopNet/Crexi URL — or paste listing text directly..."
           value={text}
           onChange={e => {
             setText(e.target.value)
             editedRef.current = true
           }}
-          className="font-mono text-sm"
+          className="font-mono text-sm h-32 resize-none"
         />
         <div className="flex items-center gap-2">
           <Button
