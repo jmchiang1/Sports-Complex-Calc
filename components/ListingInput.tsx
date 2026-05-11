@@ -21,21 +21,45 @@ export function ListingInput({ onExtracted }: Props) {
   const [warning, setWarning] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
 
-  // Read text from the URL hash on mount (bookmarklet drop point).
+  // Read text from #import= hash (bookmarklet drop point). Runs on mount AND
+  // on hashchange so a reused tab (window.open with named target) also fires.
   useEffect(() => {
-    const hash = window.location.hash
-    if (!hash.startsWith('#import=')) return
-    try {
-      const imported = decodeURIComponent(hash.slice('#import='.length))
-      if (imported.trim()) {
-        setText(imported)
-        setStatus(`Loaded ${imported.length.toLocaleString()} chars from bookmarklet. Click Extract to parse.`)
+    const handleImport = () => {
+      const hash = window.location.hash
+      if (!hash.startsWith('#import=')) return
+
+      let imported = ''
+      try {
+        imported = decodeURIComponent(hash.slice('#import='.length))
+      } catch {
+        return
       }
-    } catch {
-      // ignore malformed hash
+
+      // Strip the hash immediately so reloads / re-mounts don't replay it.
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+
+      if (!imported.trim()) return
+
+      setText(imported)
+      setWarning(null)
+      setStatus(`Loaded ${imported.length.toLocaleString()} chars from bookmarklet — extracting…`)
+
+      // Auto-extract immediately (skips URL-fetch path — bookmarklet content is already text).
+      start(async () => {
+        setPhase('extracting')
+        const r = await extractListing(imported)
+        if (r.source === 'regex' && r.error) setWarning(r.error)
+        else setStatus(`Extracted ${imported.length.toLocaleString()} chars from bookmarklet.`)
+        onExtracted(r.listing, r.source, r.error)
+        setPhase('idle')
+      })
     }
-    // Strip the hash so reloads / re-mounts don't replay it.
-    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+
+    handleImport()
+    window.addEventListener('hashchange', handleImport)
+    return () => window.removeEventListener('hashchange', handleImport)
+    // onExtracted is intentionally not a dep — we want the closure captured at mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isUrl = URL_RE.test(text.trim())

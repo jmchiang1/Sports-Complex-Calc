@@ -25,8 +25,9 @@ function buildBookmarklet(origin: string): string {
       var t=(s.innerText||'').trim().replace(/\\n{3,}/g,'\\n\\n').slice(0,32000);
       if(!t){alert('Kotofit: no text found on this page.');return;}
       var u=${JSON.stringify(origin)}+'/#import='+encodeURIComponent(t);
-      var w=window.open(u,'_blank');
-      if(!w){if(confirm('Kotofit: popup blocked. Navigate this tab to the app?'))location.href=u;}
+      var w=window.open(u,'kotofit-app');
+      if(w){try{w.focus();}catch(_){} }
+      else if(confirm('Kotofit: popup blocked. Navigate this tab to the app?')){location.href=u;}
     }catch(e){alert('Kotofit error: '+(e&&e.message||e));}
   `.replace(/\s+/g, ' ').trim()
   return `javascript:(function(){${src}})()`

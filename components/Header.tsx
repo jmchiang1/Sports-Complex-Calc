@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
@@ -18,9 +19,15 @@ export async function Header() {
     <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border">
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="relative inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary/15 ring-1 ring-primary/30">
-            <span className="absolute inset-0 rounded-md bg-primary/30 blur-md opacity-60 group-hover:opacity-100 transition" />
-            <span className="relative h-2 w-2 rounded-full bg-primary" />
+          <span className="relative inline-flex h-7 w-7 items-center justify-center">
+            <Image
+              src="/kotofit-logo.png"
+              alt="Kotofit"
+              width={28}
+              height={28}
+              priority
+              className="rounded-md ring-1 ring-white/10 group-hover:ring-white/25 transition"
+            />
           </span>
           <span className="font-semibold tracking-tight text-foreground">
             Kotofit <span className="text-muted-foreground font-normal">Facility Analyzer</span>
