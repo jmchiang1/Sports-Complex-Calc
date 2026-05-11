@@ -12,6 +12,7 @@ import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
 import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
 import { SavedPropertiesSheet } from '@/components/SavedPropertiesSheet'
+import { BookmarkletHelper } from '@/components/BookmarkletHelper'
 import { calculateAnalysis } from '@/lib/calculator'
 import { DEFAULT_ASSUMPTIONS, EMPTY_LISTING } from '@/lib/constants'
 import { saveProperty } from '@/app/actions/save-property'
@@ -86,6 +87,7 @@ export default function Page() {
       </div>
 
       <ListingInput onExtracted={(l) => setListing(l)} />
+      <BookmarkletHelper />
       <PropertyForm value={listing} onChange={setListing} />
       <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
 

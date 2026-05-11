@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,23 @@ export function ListingInput({ onExtracted }: Props) {
   const [pending, start] = useTransition()
   const [warning, setWarning] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
+
+  // Read text from the URL hash on mount (bookmarklet drop point).
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash.startsWith('#import=')) return
+    try {
+      const imported = decodeURIComponent(hash.slice('#import='.length))
+      if (imported.trim()) {
+        setText(imported)
+        setStatus(`Loaded ${imported.length.toLocaleString()} chars from bookmarklet. Click Extract to parse.`)
+      }
+    } catch {
+      // ignore malformed hash
+    }
+    // Strip the hash so reloads / re-mounts don't replay it.
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  }, [])
 
   const isUrl = URL_RE.test(text.trim())
 

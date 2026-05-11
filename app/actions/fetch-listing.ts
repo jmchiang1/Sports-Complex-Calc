@@ -29,6 +29,14 @@ export async function fetchListingText(url: string): Promise<FetchResult> {
     if (!text.trim()) {
       return { error: 'Fetched page was empty.' }
     }
+    // Detect Akamai / Cloudflare / WAF block pages — they return 200 OK with a
+    // small "Access Denied" body. LoopNet does this aggressively.
+    if (text.length < 1000 && /access denied|attention required|cloudflare|you don't have permission/i.test(text)) {
+      return {
+        error:
+          'The site blocked our server-side fetch (LoopNet, Crexi, and similar use anti-bot defenses that reject data-center IPs). Use the "Save to Kotofit" bookmarklet shown below — it runs in your own browser, which the site already trusts.',
+      }
+    }
     return { text }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'unknown error'
