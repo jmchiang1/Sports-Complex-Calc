@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { RatingBadge } from '@/components/Dashboard/RatingBadge'
 import { fmtMoney } from '@/lib/format'
-import { ArrowUp, ArrowDown, ArrowUpDown, MoreVertical, Pencil, Trash2, Eye } from 'lucide-react'
+import { ArrowUp, ArrowDown, ArrowUpDown, MoreVertical, Pencil, Trash2, Eye, MapPin } from 'lucide-react'
 import { calculateAnalysis } from '@/lib/calculator'
 import type { PropertyRow } from '@/lib/supabase/types'
 import type { Rating } from '@/types/analysis'
@@ -183,8 +183,22 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
                 className="cursor-pointer hover:bg-white/[0.03]"
                 onClick={() => onView(row)}
               >
-                <TableCell className="font-medium max-w-md truncate">
-                  {row.label || row.address || 'Untitled'}
+                <TableCell className="font-medium max-w-md">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="truncate">{row.label || row.address || 'Untitled'}</span>
+                    {row.address && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Open in Google Maps"
+                        className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <MapPin className="size-3.5" />
+                      </a>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <RatingBadge rating={rating} />

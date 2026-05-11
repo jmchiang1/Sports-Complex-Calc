@@ -8,7 +8,7 @@ import { CourtFitPanel } from '@/components/Dashboard/CourtFitPanel'
 import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
 import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, MapPin } from 'lucide-react'
 import type { PropertyRow } from '@/lib/supabase/types'
 import { calculateAnalysis } from '@/lib/calculator'
 import { useMemo } from 'react'
@@ -41,9 +41,22 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
       <DialogContent className="verdict-modal sm:max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between gap-3 pr-6">
-            <DialogTitle className="truncate">
-              {property?.label || property?.address || 'Property analysis'}
-            </DialogTitle>
+            <div className="flex items-center gap-2 min-w-0">
+              <DialogTitle className="truncate">
+                {property?.label || property?.address || 'Property analysis'}
+              </DialogTitle>
+              {property?.address && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Open in Google Maps"
+                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MapPin className="size-4" />
+                </a>
+              )}
+            </div>
             <div className="flex items-center gap-2 shrink-0">
               {property && (
                 <Button variant="outline" size="sm" onClick={() => onEdit(property)} className="gap-1.5">
