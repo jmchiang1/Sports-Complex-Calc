@@ -1,10 +1,10 @@
 'use server'
 
-import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 import type { AnalysisResult } from '@/types/analysis'
 import { generateFallbackSummary } from '@/lib/summary-fallback'
 
-const MODEL = 'gpt-4o-mini'
+const MODEL = 'claude-haiku-4-5-20251001'
 
 const SUMMARY_SYSTEM = `You are an analyst for a Kotofit franchise scout.
 
@@ -25,7 +25,7 @@ export async function generateSummary(
   result: AnalysisResult,
   address: string | null,
 ): Promise<SummaryResult> {
-  const apiKey = process.env.OPENAI_API_KEY
+  const apiKey = process.env.ANTHROPIC_API_KEY
 
   const fallback = (): SummaryResult => ({
     summary: generateFallbackSummary({
@@ -43,7 +43,7 @@ export async function generateSummary(
   if (!apiKey) return fallback()
 
   try {
-    const client = new OpenAI({ apiKey })
+    const client = new Anthropic({ apiKey })
     const userPayload = {
       address,
       rating: result.rating,
@@ -56,19 +56,19 @@ export async function generateSummary(
       riskFlags: result.riskFlags.map(f => ({ id: f.id, title: f.title })),
     }
 
-    const completion = await client.chat.completions.create({
+    const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 600,
-      messages: [
-        { role: 'system', content: SUMMARY_SYSTEM },
-        { role: 'user', content: JSON.stringify(userPayload, null, 2) },
-      ],
+      system: [
+        { type: 'text', text: SUMMARY_SYSTEM, cache_control: { type: 'ephemeral' } },
+      ] as any,
+      messages: [{ role: 'user', content: JSON.stringify(userPayload, null, 2) }],
     })
 
-    const text = completion.choices[0]?.message?.content?.trim()
-    if (!text) return fallback()
+    const textBlock = resp.content.find((b: any) => b.type === 'text') as any
+    if (!textBlock || textBlock.type !== 'text' || !textBlock.text.trim()) return fallback()
 
-    return { summary: text, source: 'ai' }
+    return { summary: textBlock.text, source: 'ai' }
   } catch {
     return fallback()
   }

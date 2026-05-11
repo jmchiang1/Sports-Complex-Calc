@@ -1,6 +1,6 @@
 'use server'
 
-import { extractWithOpenAI } from '@/lib/extract/openai'
+import { extractWithAnthropic } from '@/lib/extract/anthropic'
 import { parseListingWithRegex } from '@/lib/extract/regex-fallback'
 import type { ExtractedListing } from '@/types/analysis'
 
@@ -16,12 +16,12 @@ export async function extractListing(rawText: string): Promise<ExtractResult> {
   }
 
   // No API key configured — silently use the regex parser (no warning).
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return { listing: parseListingWithRegex(rawText), source: 'regex' }
   }
 
   try {
-    const listing = await extractWithOpenAI(rawText)
+    const listing = await extractWithAnthropic(rawText)
     return { listing, source: 'ai' }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'unknown error'
