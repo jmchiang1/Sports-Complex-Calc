@@ -1,6 +1,6 @@
 'use server'
 
-import { extractWithAnthropic } from '@/lib/extract/anthropic'
+import { extractWithOpenAI } from '@/lib/extract/openai'
 import { parseListingWithRegex } from '@/lib/extract/regex-fallback'
 import type { ExtractedListing } from '@/types/analysis'
 
@@ -16,7 +16,7 @@ export async function extractListing(rawText: string): Promise<ExtractResult> {
   }
 
   try {
-    const listing = await extractWithAnthropic(rawText)
+    const listing = await extractWithOpenAI(rawText)
     return { listing, source: 'ai' }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'unknown error'
