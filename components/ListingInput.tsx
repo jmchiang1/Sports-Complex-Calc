@@ -63,11 +63,17 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
       // Auto-extract immediately (skips URL-fetch path — bookmarklet content is already text).
       start(async () => {
         setPhase('extracting')
-        const r = await extractListing(imported)
-        if (r.source === 'regex' && r.error) setWarning(r.error)
-        else setStatus(`Extracted ${imported.length.toLocaleString()} chars from bookmarklet.`)
-        onExtracted(r.listing, r.source, r.error)
-        setPhase('idle')
+        try {
+          const r = await extractListing(imported)
+          if (r.source === 'regex' && r.error) setWarning(r.error)
+          else setStatus(`Extracted ${imported.length.toLocaleString()} chars from bookmarklet.`)
+          onExtracted(r.listing, r.source, r.error)
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : 'unknown error'
+          setWarning(`Extraction failed: ${msg}`)
+        } finally {
+          setPhase('idle')
+        }
       })
     }
 
@@ -113,25 +119,29 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
               start(async () => {
                 setWarning(null)
                 setStatus(null)
-
-                let payload = text
-                if (isUrl) {
-                  setPhase('fetching')
-                  const f = await fetchListingText(text)
-                  if (f.error || !f.text) {
-                    setWarning(`URL fetch failed: ${f.error ?? 'no content'}`)
-                    setPhase('idle')
-                    return
+                try {
+                  let payload = text
+                  if (isUrl) {
+                    setPhase('fetching')
+                    const f = await fetchListingText(text)
+                    if (f.error || !f.text) {
+                      setWarning(`URL fetch failed: ${f.error ?? 'no content'}`)
+                      return
+                    }
+                    payload = f.text
+                    setStatus(`Fetched ${f.text.length.toLocaleString()} chars from URL.`)
                   }
-                  payload = f.text
-                  setStatus(`Fetched ${f.text.length.toLocaleString()} chars from URL.`)
-                }
 
-                setPhase('extracting')
-                const r = await extractListing(payload)
-                if (r.source === 'regex' && r.error) setWarning(r.error)
-                onExtracted(r.listing, r.source, r.error)
-                setPhase('idle')
+                  setPhase('extracting')
+                  const r = await extractListing(payload)
+                  if (r.source === 'regex' && r.error) setWarning(r.error)
+                  onExtracted(r.listing, r.source, r.error)
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : 'unknown error'
+                  setWarning(`Extraction failed: ${msg}`)
+                } finally {
+                  setPhase('idle')
+                }
               })
             }
           >
