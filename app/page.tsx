@@ -74,7 +74,7 @@ export default function Page() {
     })
 
   return (
-    <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
+    <main className="max-w-[95vw] mx-auto w-full px-4 sm:px-6 py-6">
       <div className="flex items-end justify-between mb-6 gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Facility analysis</h1>
