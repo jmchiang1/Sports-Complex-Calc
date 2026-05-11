@@ -56,7 +56,7 @@ export function VerdictHero({
   const noiPositive = result.noi > 0
 
   return (
-    <div className={`surface relative overflow-hidden ${v.ring}`}>
+    <div className={`verdict-hero surface relative overflow-hidden ${v.ring}`}>
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${v.glow}`}

@@ -26,7 +26,7 @@ export function SavedPropertiesSheet({ onLoad }: Props) {
   return (
     <Sheet open={open} onOpenChange={(next) => setOpen(next)}>
       <SheetTrigger render={<Button variant="outline" size="sm">Saved properties</Button>} />
-      <SheetContent className="sm:max-w-md overflow-y-auto">
+      <SheetContent className="saved-properties-sheet sm:max-w-md overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Saved properties</SheetTitle>
         </SheetHeader>
@@ -36,7 +36,7 @@ export function SavedPropertiesSheet({ onLoad }: Props) {
             <p className="text-sm text-muted-foreground">No saved properties yet. Sign in and click Save.</p>
           )}
           {rows.map(r => (
-            <div key={r.id} className="border border-border rounded-lg p-3 mx-4 hover:bg-white/5 transition-colors">
+            <div key={r.id} className="saved-property-card border border-border rounded-lg p-3 mx-4 hover:bg-white/5 transition-colors">
               <div className="flex items-center justify-between gap-2">
                 <div className="font-medium text-sm truncate">{r.label || r.address || 'Untitled'}</div>
                 {r.rating && <RatingBadge rating={r.rating as Rating} />}

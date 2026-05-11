@@ -37,7 +37,7 @@ export function PropertyForm({ value, onChange }: Props) {
     onChange({ ...value, [k]: v })
 
   return (
-    <Card>
+    <Card className="property-form-card">
       <CardHeader>
         <CardTitle>Property details</CardTitle>
       </CardHeader>

@@ -78,7 +78,7 @@ export function BookmarkletHelper() {
   }
 
   return (
-    <Card>
+    <Card className="bookmarklet-card">
       <Collapsible open={open} onOpenChange={(next) => setOpen(next)}>
         <CardHeader>
           <CollapsibleTrigger className="flex w-full items-center justify-between text-left">

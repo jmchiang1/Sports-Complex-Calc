@@ -32,7 +32,7 @@ export function KpiCards({ result }: { result: AnalysisResult }) {
   ]
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="kpi-cards-row grid grid-cols-2 sm:grid-cols-4 gap-3">
       {items.map((i) => (
         <div
           key={i.label}

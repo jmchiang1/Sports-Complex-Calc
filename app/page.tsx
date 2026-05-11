@@ -93,13 +93,11 @@ export default function Page() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Inputs column */}
-        <section className="lg:col-span-5 space-y-4 min-w-0">
+        <section className="inputs-column lg:col-span-5 space-y-4 min-w-0">
           <ListingInput onExtracted={(l) => setListing(l)} />
-          <BookmarkletHelper />
           <PropertyForm value={listing} onChange={setListing} />
-          <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
 
-          <div className="surface p-4 flex flex-wrap items-center gap-2">
+          <div className="save-analysis-bar surface p-4 flex flex-wrap items-center gap-2">
             <Button onClick={save} disabled={pending}>
               {pending ? 'Saving…' : savedId ? 'Update saved analysis' : 'Save analysis'}
             </Button>
@@ -109,13 +107,16 @@ export default function Page() {
               <span className="text-xs text-muted-foreground ml-auto">{saveStatus}</span>
             )}
           </div>
+
+          <AssumptionsPanel value={assumptions} onChange={setAssumptions} />
+          <BookmarkletHelper />
         </section>
 
         {/* Analysis column — sticky on lg+ so it stays visible while editing */}
-        <section className="lg:col-span-7 space-y-4 min-w-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
+        <section className="analysis-column lg:col-span-7 space-y-4 min-w-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
           <VerdictHero result={result} address={listing.address} />
           <KpiCards result={result} />
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div className="court-and-risks-row grid grid-cols-1 xl:grid-cols-2 gap-4">
             <CourtFitPanel result={result} listing={listing} assumptions={assumptions} />
             <RiskFlagsPanel flags={result.riskFlags} />
           </div>
