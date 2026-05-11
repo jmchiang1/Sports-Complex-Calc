@@ -15,6 +15,11 @@ export async function extractListing(rawText: string): Promise<ExtractResult> {
     return { listing: parseListingWithRegex(''), source: 'regex' }
   }
 
+  // No API key configured — silently use the regex parser (no warning).
+  if (!process.env.OPENAI_API_KEY) {
+    return { listing: parseListingWithRegex(rawText), source: 'regex' }
+  }
+
   try {
     const listing = await extractWithOpenAI(rawText)
     return { listing, source: 'ai' }
