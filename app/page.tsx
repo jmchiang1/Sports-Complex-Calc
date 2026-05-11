@@ -92,7 +92,7 @@ export default function Page() {
         </div>
 
         <TabsContent value="edit" className="edit-tab">
-          <div className="inputs-column mx-auto max-w-4xl space-y-3">
+          <div className="inputs-column space-y-3">
             <ListingInput onExtracted={(l) => setListing(l)} />
             <PropertyForm value={listing} onChange={setListing} />
 
