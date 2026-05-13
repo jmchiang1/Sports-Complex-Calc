@@ -96,7 +96,7 @@ export default function Page() {
         onSaved={() => reload()}
       />
 
-      <div className="mt-8 pt-6 border-t border-border flex justify-start">
+      <div className="mt-6 flex justify-start">
         <BookmarkletHelper />
       </div>
     </main>
