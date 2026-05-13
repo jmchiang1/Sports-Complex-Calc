@@ -12,7 +12,10 @@ function escapeHtmlAttr(s: string): string {
 /**
  * Bookmarklet source. When clicked on any listing page, it:
  *  1. Finds the page's main content (or falls back to body)
- *  2. Extracts plain text, trims, caps at 32 KB
+ *  2. Extracts plain text, trims, caps at 4 KB (keeps AI extraction
+ *     latency under ~3s — well within Vercel hobby tier's 10s function
+ *     timeout; the property details we care about live at the top of
+ *     LoopNet pages anyway)
  *  3. Opens our app in a named tab — falls back to same-tab nav if popups blocked
  *  4. Surfaces any error via alert()
  */
@@ -20,7 +23,7 @@ function buildBookmarklet(origin: string): string {
   const src = `
     try{
       var s=document.querySelector('main')||document.querySelector('article')||document.querySelector('[role="main"]')||document.body;
-      var t=(s.innerText||'').trim().replace(/\\n{3,}/g,'\\n\\n').slice(0,32000);
+      var t=(s.innerText||'').trim().replace(/\\n{3,}/g,'\\n\\n').slice(0,4000);
       if(!t){alert('Kotofit: no text found on this page.');return;}
       var u=${JSON.stringify(origin)}+'/#import='+encodeURIComponent(t);
       var w=window.open(u,'kotofit-app');
