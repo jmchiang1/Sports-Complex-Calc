@@ -4,10 +4,31 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { extractListing } from '@/app/actions/extract-listing'
 import { fetchListingText } from '@/app/actions/fetch-listing'
 import { parseListingWithRegex } from '@/lib/extract/regex-fallback'
 import type { ExtractedListing } from '@/types/analysis'
+
+interface ExtractResult {
+  listing: ExtractedListing
+  source: 'ai' | 'regex'
+  error?: string
+}
+
+/**
+ * Calls /api/extract — a Route Handler running on Edge runtime (25s wall
+ * time on Vercel hobby vs the 10s Node Serverless cap).
+ */
+async function extractListing(text: string): Promise<ExtractResult> {
+  const resp = await fetch('/api/extract', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  })
+  if (!resp.ok) {
+    throw new Error(`HTTP ${resp.status}`)
+  }
+  return resp.json()
+}
 
 const URL_RE = /^https?:\/\/\S+$/
 
@@ -86,7 +107,7 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
           // 20-second cap. If extraction stalls, fall back to the client-side regex
           // parser so the form at least populates with what regex can pull.
           const timeout = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), 12_000),
+            setTimeout(() => reject(new Error('timeout')), 25_000),
           )
           const r = await Promise.race([extractListing(imported), timeout])
           if (r.source === 'regex' && r.error) setWarning(r.error)
@@ -168,7 +189,7 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
 
                   setPhase('extracting')
                   const timeout = new Promise<never>((_, reject) =>
-                    setTimeout(() => reject(new Error('timeout')), 12_000),
+                    setTimeout(() => reject(new Error('timeout')), 25_000),
                   )
                   const r = await Promise.race([extractListing(payload), timeout])
                   if (r.source === 'regex' && r.error) setWarning(r.error)
