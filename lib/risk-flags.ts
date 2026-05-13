@@ -24,8 +24,9 @@ export function generateRiskFlags(i: RiskFlagInput): RiskFlag[] {
     flags.push({
       id: 'missing-rent',
       severity: 'high',
-      title: 'Rent missing',
-      detail: 'Rental rate is missing. Contact broker before relying on financial model.',
+      title: 'Rent estimated',
+      detail:
+        'No rental rate stated — using $24/sf/yr as an estimate. Contact broker for the actual rate before relying on the financial model.',
     })
   }
 

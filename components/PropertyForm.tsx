@@ -18,21 +18,30 @@ const Field = (props: {
   value: string | number | null
   onChange: (v: string | number | null) => void
   step?: string
-}) => (
-  <div className="space-y-1.5">
-    <Label className="text-xs text-muted-foreground">{props.label}</Label>
-    <Input
-      type={props.type ?? 'text'}
-      step={props.step}
-      value={props.value == null ? '' : props.value}
-      onChange={e => {
-        const v = e.target.value
-        if (props.type === 'number') props.onChange(v === '' ? null : Number(v))
-        else props.onChange(v === '' ? null : v)
-      }}
-    />
-  </div>
-)
+  placeholder?: string
+  hint?: string
+}) => {
+  const isEmpty = props.value == null || props.value === ''
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs text-muted-foreground">{props.label}</Label>
+      <Input
+        type={props.type ?? 'text'}
+        step={props.step}
+        placeholder={props.placeholder}
+        value={props.value == null ? '' : props.value}
+        onChange={(e) => {
+          const v = e.target.value
+          if (props.type === 'number') props.onChange(v === '' ? null : Number(v))
+          else props.onChange(v === '' ? null : v)
+        }}
+      />
+      {isEmpty && props.hint && (
+        <p className="text-[11px] text-amber-300/80">{props.hint}</p>
+      )}
+    </div>
+  )
+}
 
 export function PropertyForm({ value, onChange, headerAction }: Props) {
   const set = <K extends keyof ExtractedListing>(k: K, v: ExtractedListing[K]) =>
@@ -53,7 +62,15 @@ export function PropertyForm({ value, onChange, headerAction }: Props) {
         <Field label="Warehouse sq ft" type="number" value={value.warehouseSqft} onChange={v => set('warehouseSqft', v as number | null)} />
         <Field label="Office sq ft" type="number" value={value.officeSqft} onChange={v => set('officeSqft', v as number | null)} />
         <Field label="Clear height (ft)" type="number" value={value.clearHeight} onChange={v => set('clearHeight', v as number | null)} />
-        <Field label="Rent ($/sf/yr)" type="number" step="0.01" value={value.rentPerSqftYr} onChange={v => set('rentPerSqftYr', v as number | null)} />
+        <Field
+          label="Rent ($/sf/yr)"
+          type="number"
+          step="0.01"
+          value={value.rentPerSqftYr}
+          onChange={(v) => set('rentPerSqftYr', v as number | null)}
+          placeholder="24"
+          hint="Using $24/sf/yr as estimate"
+        />
         <Field label="Loading" value={value.loading} onChange={v => set('loading', v as string | null)} />
       </CardContent>
     </Card>

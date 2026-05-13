@@ -2,8 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { signOut } from '@/app/actions/auth'
 import { SignInDialog } from './SignInDialog'
+import { UserMenu } from './UserMenu'
 
 export async function Header() {
   let user = null
@@ -17,7 +17,7 @@ export async function Header() {
 
   return (
     <header className="app-header sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border">
-      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div className="max-w-[95vw] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
           <span className="relative inline-flex h-7 w-7 items-center justify-center">
             <Image
@@ -34,15 +34,8 @@ export async function Header() {
           </span>
         </Link>
         <div className="flex items-center gap-2">
-          {user ? (
-            <>
-              <span className="hidden sm:inline text-xs text-muted-foreground mr-1">{user.email}</span>
-              <form action={signOut}>
-                <Button type="submit" variant="ghost" size="sm">
-                  Sign out
-                </Button>
-              </form>
-            </>
+          {user?.email ? (
+            <UserMenu email={user.email} />
           ) : (
             <SignInDialog>
               <Button variant="ghost" size="sm">

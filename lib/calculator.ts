@@ -101,16 +101,21 @@ import { rateAnalysis } from './rating'
 import { generateRiskFlags } from './risk-flags'
 import { generateFallbackSummary } from './summary-fallback'
 
+/** Placeholder rent used when the listing has no rent stated. The user is
+ * told this via the form hint + the missing-rent risk flag. */
+export const ESTIMATED_RENT_PER_SQFT_YR = 24
+
 export function calculateAnalysis(input: AnalysisInput): AnalysisResult {
   const { listing, assumptions } = input
   const totalSqft = listing.totalSqft ?? 0
   const warehouseSqft = listing.warehouseSqft ?? totalSqft
+  const effectiveRent = listing.rentPerSqftYr ?? ESTIMATED_RENT_PER_SQFT_YR
 
   const courts = calculateCourts(warehouseSqft, assumptions)
   const revenue = calculateRevenue(courts, assumptions)
   const expenses = calculateExpenses({
     totalSqft,
-    rentPerSqftYr: listing.rentPerSqftYr,
+    rentPerSqftYr: effectiveRent,
     grossRevenue: revenue.gross,
     assumptions,
   })
@@ -134,7 +139,10 @@ export function calculateAnalysis(input: AnalysisInput): AnalysisResult {
 
   const rating = rateAnalysis({
     totalSqft: listing.totalSqft,
-    rentPerSqftYr: listing.rentPerSqftYr,
+    // We always have an effective rent (estimate if not stated), so pass it
+    // along so the rating doesn't fall through to "Incomplete" just because
+    // the user hasn't entered rent yet.
+    rentPerSqftYr: effectiveRent,
     totalCourts: courts.total,
     noi,
     noiMargin,

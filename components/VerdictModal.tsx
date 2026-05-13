@@ -9,7 +9,7 @@ import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
 import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
 import { StartupCostBreakdown } from '@/components/Dashboard/StartupCostBreakdown'
-import { Pencil, Trash2, MapPin } from 'lucide-react'
+import { Pencil, Trash2, MapPin, X } from 'lucide-react'
 import type { PropertyRow } from '@/lib/supabase/types'
 import { calculateAnalysis } from '@/lib/calculator'
 import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
@@ -42,9 +42,12 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
         if (!next) onClose()
       }}
     >
-      <DialogContent className="verdict-modal sm:max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        showCloseButton={false}
+        className="verdict-modal sm:max-w-5xl max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader>
-          <div className="flex items-center justify-between gap-3 pr-6">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
               <DialogTitle className="truncate">
                 {property?.label || property?.address || 'Property analysis'}
@@ -83,6 +86,15 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
                   Delete
                 </Button>
               )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="size-8 p-0 text-muted-foreground hover:text-foreground"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </Button>
             </div>
           </div>
         </DialogHeader>

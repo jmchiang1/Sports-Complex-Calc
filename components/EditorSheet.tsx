@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { ListingInput } from '@/components/ListingInput'
 import { PropertyForm } from '@/components/PropertyForm'
 import { AssumptionsPanel } from '@/components/AssumptionsPanel'
-import { BookmarkletHelper } from '@/components/BookmarkletHelper'
 import { RatingBadge } from '@/components/Dashboard/RatingBadge'
 import { fmtMoney, fmtYears } from '@/lib/format'
 import { calculateAnalysis } from '@/lib/calculator'
@@ -79,6 +78,7 @@ export function EditorSheet({ initial, onClose, onSaved }: Props) {
         setSavedId(r.id)
         setSaveStatus('Saved.')
         onSaved()
+        onClose()
       }
     })
 
@@ -96,10 +96,7 @@ export function EditorSheet({ initial, onClose, onSaved }: Props) {
           </SheetHeader>
 
           <div className="flex-1 px-5 py-4 space-y-4">
-            <ListingInput
-              onExtracted={(l) => setListing(l)}
-              headerAction={<BookmarkletHelper />}
-            />
+            <ListingInput onExtracted={(l) => setListing(l)} />
             <PropertyForm
               value={listing}
               onChange={setListing}

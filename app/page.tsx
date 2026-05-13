@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react'
 import { DashboardTable } from '@/components/DashboardTable'
 import { EditorSheet } from '@/components/EditorSheet'
 import { VerdictModal } from '@/components/VerdictModal'
+import { BookmarkletHelper } from '@/components/BookmarkletHelper'
 import { listProperties } from '@/app/actions/list-properties'
 import { deleteProperty } from '@/app/actions/delete-property'
 import type { PropertyRow } from '@/lib/supabase/types'
@@ -65,7 +66,7 @@ export default function Page() {
         </div>
         <Button onClick={() => setEditor({ row: undefined })} className="gap-1.5">
           <Plus className="size-4" />
-          Add new property
+          Add property
         </Button>
       </div>
 
@@ -92,11 +93,12 @@ export default function Page() {
       <EditorSheet
         initial={editor}
         onClose={() => setEditor(null)}
-        onSaved={() => {
-          reload()
-          // Leave the sheet open so the user can keep editing the just-saved row.
-        }}
+        onSaved={() => reload()}
       />
+
+      <div className="mt-8 pt-6 border-t border-border flex justify-center">
+        <BookmarkletHelper />
+      </div>
     </main>
   )
 }
