@@ -32,7 +32,13 @@ export function EditorSheet({ initial, onClose, onSaved }: Props) {
   useEffect(() => {
     if (!initial) return
     if (initial.row) {
-      setListing(initial.row.listing_json)
+      // Patch in defaults for fields older saved properties don't have
+      // (sourceUrl, imageUrls) so the form binds cleanly.
+      setListing({
+        ...initial.row.listing_json,
+        sourceUrl: initial.row.listing_json.sourceUrl ?? null,
+        imageUrls: initial.row.listing_json.imageUrls ?? [],
+      })
       // Merge with defaults to fill in any fields missing from older saves.
       setAssumptions({ ...DEFAULT_ASSUMPTIONS, ...initial.row.assumptions_json })
       setSavedId(initial.row.id)

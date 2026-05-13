@@ -72,6 +72,14 @@ export function PropertyForm({ value, onChange, headerAction }: Props) {
           hint="Using $24/sf/yr as estimate"
         />
         <Field label="Loading" value={value.loading} onChange={v => set('loading', v as string | null)} />
+        <div className="sm:col-span-2">
+          <Field
+            label="Source listing URL"
+            value={value.sourceUrl}
+            onChange={(v) => set('sourceUrl', v as string | null)}
+            placeholder="https://www.loopnet.com/..."
+          />
+        </div>
       </CardContent>
     </Card>
   )
