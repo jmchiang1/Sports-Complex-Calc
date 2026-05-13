@@ -56,8 +56,10 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
   const [search, setSearch] = useState('')
   const [ratingFilter, setRatingFilter] = useState<'all' | Rating>('all')
   const [regionFilter, setRegionFilter] = useState<'all' | Region>('all')
-  const [sortKey, setSortKey] = useState<SortKey>('created_at')
-  const [sortDir, setSortDir] = useState<SortDir>('desc')
+  // Default: rating ascending = Strong Candidate first → Do Not Pursue last.
+  // RATING_ORDER assigns lower numbers to stronger ratings.
+  const [sortKey, setSortKey] = useState<SortKey>('rating')
+  const [sortDir, setSortDir] = useState<SortDir>('asc')
 
   // Recompute analysis fresh from listing_json + assumptions_json so the table
   // always reflects the current calculator logic, not the stale snapshot
@@ -141,7 +143,8 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
     } else {
       setSortKey(key)
-      setSortDir(key === 'label' ? 'asc' : 'desc')
+      // Text-y / "good is low" columns ascend by default; numeric / recency desc.
+      setSortDir(key === 'label' || key === 'rating' ? 'asc' : 'desc')
     }
   }
 

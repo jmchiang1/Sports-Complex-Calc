@@ -182,3 +182,12 @@
 [data-slot="collapsible-content"][data-state="closed"] {
   animation: collapsible-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Hide scrollbars on horizontally-scrolling strips that have their own
+   arrow controls (e.g. the photo strip in the verdict modal). */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
