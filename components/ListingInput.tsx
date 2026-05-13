@@ -64,13 +64,19 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
       start(async () => {
         setPhase('extracting')
         try {
-          const r = await extractListing(imported)
+          // 45-second cap. If the server action hangs (serverless timeout swallowed,
+          // Anthropic stalled, etc.) we still surface the failure instead of an
+          // indefinite "extracting…" state.
+          const timeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Timed out after 45s')), 45_000),
+          )
+          const r = await Promise.race([extractListing(imported), timeout])
           if (r.source === 'regex' && r.error) setWarning(r.error)
           else setStatus(`Extracted ${imported.length.toLocaleString()} chars from bookmarklet.`)
           onExtracted(r.listing, r.source, r.error)
         } catch (err) {
           const msg = err instanceof Error ? err.message : 'unknown error'
-          setWarning(`Extraction failed: ${msg}`)
+          setWarning(`Extraction failed: ${msg}. Edit the form manually or try again.`)
         } finally {
           setPhase('idle')
         }
@@ -133,12 +139,15 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
                   }
 
                   setPhase('extracting')
-                  const r = await extractListing(payload)
+                  const timeout = new Promise<never>((_, reject) =>
+                    setTimeout(() => reject(new Error('Timed out after 45s')), 45_000),
+                  )
+                  const r = await Promise.race([extractListing(payload), timeout])
                   if (r.source === 'regex' && r.error) setWarning(r.error)
                   onExtracted(r.listing, r.source, r.error)
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : 'unknown error'
-                  setWarning(`Extraction failed: ${msg}`)
+                  setWarning(`Extraction failed: ${msg}. Edit the form manually or try again.`)
                 } finally {
                   setPhase('idle')
                 }
