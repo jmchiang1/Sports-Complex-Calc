@@ -38,7 +38,11 @@ export async function extractWithAnthropic(rawText: string): Promise<ExtractedLi
 
   const response = await client.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    // The JSON we want is ~200 tokens; 400 leaves headroom without letting
+    // Claude overgenerate.
+    max_tokens: 400,
+    // Deterministic + slightly faster sampling for structured output.
+    temperature: 0,
     system: [
       {
         type: 'text',
