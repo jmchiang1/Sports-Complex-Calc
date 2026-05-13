@@ -60,11 +60,11 @@ function PhotoStrip({
 
   return (
     <>
-      <div className="photo-strip relative">
+      <div className="photo-strip relative min-w-0 max-w-full">
         <div
           ref={scrollerRef}
           onScroll={updateArrows}
-          className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide scroll-smooth"
+          className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide scroll-smooth min-w-0 max-w-full"
           style={{ scrollbarWidth: 'none' } as React.CSSProperties}
         >
           {images.map((src, i) => (
@@ -151,7 +151,7 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
     >
       <DialogContent
         showCloseButton={false}
-        className="verdict-modal sm:max-w-5xl max-h-[90vh] overflow-y-auto"
+        className="verdict-modal sm:max-w-5xl max-h-[90vh] overflow-y-auto overflow-x-hidden"
       >
         <DialogHeader>
           <div className="flex items-center justify-between gap-3">

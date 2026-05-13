@@ -26,10 +26,12 @@ function buildBookmarklet(origin: string): string {
       var t=(s.innerText||'').trim().replace(/\\n{3,}/g,'\\n\\n').slice(0,4000);
       if(!t){alert('Kotofit: no text found on this page.');return;}
       var imgs=[],seen={};
+      // Exclude broker/agent headshots & avatars/logos — keep property photos only.
+      var SKIP=/people|agent|broker|avatar|profile|headshot|logo/i;
       var nodes=document.querySelectorAll('img');
       for(var i=0;i<nodes.length&&imgs.length<8;i++){
         var src=nodes[i].currentSrc||nodes[i].src||nodes[i].dataset.src||'';
-        if(src&&/images?\\d*\\.loopnet\\.com|images?\\d*\\.crexi\\.com/.test(src)&&!seen[src]){seen[src]=1;imgs.push(src);}
+        if(src&&/images?\\d*\\.loopnet\\.com|images?\\d*\\.crexi\\.com/.test(src)&&!SKIP.test(src)&&!seen[src]){seen[src]=1;imgs.push(src);}
       }
       var payload=JSON.stringify({text:t,sourceUrl:location.href,imageUrls:imgs});
       var u=${JSON.stringify(origin)}+'/#import='+encodeURIComponent(payload);
