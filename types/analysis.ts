@@ -9,6 +9,10 @@ export interface ExtractedListing {
   loading: string | null
   parking: string | null
   locationNotes: string[]
+  /** Source listing URL (e.g. LoopNet/Crexi page). */
+  sourceUrl: string | null
+  /** Image URLs scraped from the listing page (typically via bookmarklet). */
+  imageUrls: string[]
 }
 
 export interface Assumptions {

@@ -36,9 +36,9 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
       const hash = window.location.hash
       if (!hash.startsWith('#import=')) return
 
-      let imported = ''
+      let decoded = ''
       try {
-        imported = decodeURIComponent(hash.slice('#import='.length))
+        decoded = decodeURIComponent(hash.slice('#import='.length))
       } catch {
         return
       }
@@ -46,7 +46,25 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
       // Strip the hash immediately so reloads / re-mounts don't replay it.
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
 
-      if (!imported.trim()) return
+      if (!decoded.trim()) return
+
+      // New bookmarklet format: JSON { text, sourceUrl, imageUrls }.
+      // Old format: plain text. Detect and fall back.
+      let imported = decoded
+      let sourceUrl: string | null = null
+      let imageUrls: string[] = []
+      try {
+        const parsed = JSON.parse(decoded)
+        if (parsed && typeof parsed === 'object' && typeof parsed.text === 'string') {
+          imported = parsed.text
+          sourceUrl = typeof parsed.sourceUrl === 'string' ? parsed.sourceUrl : null
+          imageUrls = Array.isArray(parsed.imageUrls)
+            ? parsed.imageUrls.filter((s: unknown) => typeof s === 'string')
+            : []
+        }
+      } catch {
+        // Old plain-text bookmarklet — keep imported = decoded
+      }
 
       // If the user was mid-edit, ask before clobbering their work.
       if (editedRef.current) {
@@ -73,12 +91,17 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
           const r = await Promise.race([extractListing(imported), timeout])
           if (r.source === 'regex' && r.error) setWarning(r.error)
           else setStatus(`Extracted ${imported.length.toLocaleString()} chars from bookmarklet.`)
-          onExtracted(r.listing, r.source, r.error)
+          // Merge bookmarklet metadata onto the AI/regex listing.
+          onExtracted(
+            { ...r.listing, sourceUrl, imageUrls },
+            r.source,
+            r.error,
+          )
         } catch (err) {
           const msg = err instanceof Error ? err.message : 'unknown error'
           // Fall back to client-side regex so the user isn't left empty-handed.
           const fallback = parseListingWithRegex(imported)
-          onExtracted(fallback, 'regex')
+          onExtracted({ ...fallback, sourceUrl, imageUrls }, 'regex')
           setWarning(
             `AI extraction failed (${msg}). Form populated with regex fallback — please double-check fields.`,
           )

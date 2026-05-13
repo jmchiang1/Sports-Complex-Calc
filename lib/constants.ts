@@ -49,4 +49,6 @@ export const EMPTY_LISTING: ExtractedListing = {
   loading: null,
   parking: null,
   locationNotes: [],
+  sourceUrl: null,
+  imageUrls: [],
 }

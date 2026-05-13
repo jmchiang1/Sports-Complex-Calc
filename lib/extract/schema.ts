@@ -13,6 +13,10 @@ export const ExtractedListingSchema = z.object({
   loading: z.string().nullable(),
   parking: z.string().nullable(),
   locationNotes: z.array(z.string()).default([]),
+  // Bookmarklet-supplied metadata. AI doesn't populate these; defaulted so
+  // the Zod parse succeeds whether they're present in the AI output or not.
+  sourceUrl: z.string().nullable().default(null),
+  imageUrls: z.array(z.string()).default([]),
 })
 
 export type ExtractedListingFromAI = z.infer<typeof ExtractedListingSchema>

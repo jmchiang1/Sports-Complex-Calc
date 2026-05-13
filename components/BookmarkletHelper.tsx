@@ -25,7 +25,14 @@ function buildBookmarklet(origin: string): string {
       var s=document.querySelector('main')||document.querySelector('article')||document.querySelector('[role="main"]')||document.body;
       var t=(s.innerText||'').trim().replace(/\\n{3,}/g,'\\n\\n').slice(0,4000);
       if(!t){alert('Kotofit: no text found on this page.');return;}
-      var u=${JSON.stringify(origin)}+'/#import='+encodeURIComponent(t);
+      var imgs=[],seen={};
+      var nodes=document.querySelectorAll('img');
+      for(var i=0;i<nodes.length&&imgs.length<8;i++){
+        var src=nodes[i].currentSrc||nodes[i].src||nodes[i].dataset.src||'';
+        if(src&&/images?\\d*\\.loopnet\\.com|images?\\d*\\.crexi\\.com/.test(src)&&!seen[src]){seen[src]=1;imgs.push(src);}
+      }
+      var payload=JSON.stringify({text:t,sourceUrl:location.href,imageUrls:imgs});
+      var u=${JSON.stringify(origin)}+'/#import='+encodeURIComponent(payload);
       var w=window.open(u,'kotofit-app');
       if(w){try{w.focus();}catch(_){} }
       else if(confirm('Kotofit: popup blocked. Navigate this tab to the app?')){location.href=u;}

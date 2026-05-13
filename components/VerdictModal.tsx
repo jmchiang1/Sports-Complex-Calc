@@ -9,7 +9,7 @@ import { FinancialBreakdown } from '@/components/Dashboard/FinancialBreakdown'
 import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
 import { StartupCostBreakdown } from '@/components/Dashboard/StartupCostBreakdown'
-import { Pencil, Trash2, MapPin, X } from 'lucide-react'
+import { Pencil, Trash2, MapPin, X, ExternalLink } from 'lucide-react'
 import type { PropertyRow } from '@/lib/supabase/types'
 import { calculateAnalysis } from '@/lib/calculator'
 import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
@@ -22,13 +22,54 @@ interface Props {
   onDelete: (id: string) => void
 }
 
+function PhotoStrip({
+  images,
+  sourceUrl,
+}: {
+  images: string[]
+  sourceUrl: string | null
+}) {
+  return (
+    <div className="photo-strip flex gap-2 overflow-x-auto pb-1">
+      {images.map((src, i) => (
+        <a
+          key={src}
+          href={sourceUrl || src}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Open listing"
+          className="block shrink-0 h-32 w-44 rounded-lg overflow-hidden ring-1 ring-border bg-card hover:ring-foreground/30 transition"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={`Listing photo ${i + 1}`}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              // Hide if the image fails to load (LoopNet CDN sometimes rejects hot-link)
+              const target = e.currentTarget
+              target.parentElement?.classList.add('hidden')
+            }}
+          />
+        </a>
+      ))}
+    </div>
+  )
+}
+
 export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
   // Recompute the analysis from the persisted listing + assumptions so the
   // verdict reflects the latest calculator logic, not the row's stale snapshot.
   const result = useMemo(() => {
     if (!property) return null
     return calculateAnalysis({
-      listing: property.listing_json,
+      // Patch in default null/[] for fields older saved properties don't have.
+      listing: {
+        ...property.listing_json,
+        sourceUrl: property.listing_json.sourceUrl ?? null,
+        imageUrls: property.listing_json.imageUrls ?? [],
+      },
       // Merge with defaults so old saved properties (missing the new
       // renovation-breakdown fields) still compute correctly.
       assumptions: { ...DEFAULT_ASSUMPTIONS, ...property.assumptions_json },
@@ -61,6 +102,18 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
                   className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <MapPin className="size-4" />
+                </a>
+              )}
+              {property?.listing_json.sourceUrl && (
+                <a
+                  href={property.listing_json.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Open source listing"
+                  className="shrink-0 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ExternalLink className="size-3.5" />
+                  Listing
                 </a>
               )}
             </div>
@@ -101,6 +154,12 @@ export function VerdictModal({ property, onClose, onEdit, onDelete }: Props) {
 
         {property && result && (
           <div className="space-y-4 mt-2">
+            {property.listing_json.imageUrls?.length > 0 && (
+              <PhotoStrip
+                images={property.listing_json.imageUrls}
+                sourceUrl={property.listing_json.sourceUrl}
+              />
+            )}
             <VerdictHero result={result} address={property.address} />
             <KpiCards result={result} />
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">

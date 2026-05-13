@@ -52,5 +52,7 @@ export function parseListingWithRegex(text: string): ExtractedListing {
     loading: null,
     parking: null,
     locationNotes: [],
+    sourceUrl: null,
+    imageUrls: [],
   }
 }
