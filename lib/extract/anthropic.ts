@@ -34,7 +34,10 @@ export async function extractWithAnthropic(rawText: string): Promise<ExtractedLi
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set')
 
-  const client = new Anthropic({ apiKey })
+  // 8s SDK-level timeout fits comfortably inside Vercel hobby's 10s function
+  // timeout. If Anthropic stalls, we error out cleanly instead of being killed
+  // and leaving the client connection to hang.
+  const client = new Anthropic({ apiKey, timeout: 8_000, maxRetries: 0 })
 
   const response = await client.messages.create({
     model: MODEL,

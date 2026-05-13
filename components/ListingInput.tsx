@@ -86,7 +86,7 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
           // 20-second cap. If extraction stalls, fall back to the client-side regex
           // parser so the form at least populates with what regex can pull.
           const timeout = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), 20_000),
+            setTimeout(() => reject(new Error('timeout')), 12_000),
           )
           const r = await Promise.race([extractListing(imported), timeout])
           if (r.source === 'regex' && r.error) setWarning(r.error)
@@ -168,7 +168,7 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
 
                   setPhase('extracting')
                   const timeout = new Promise<never>((_, reject) =>
-                    setTimeout(() => reject(new Error('timeout')), 20_000),
+                    setTimeout(() => reject(new Error('timeout')), 12_000),
                   )
                   const r = await Promise.race([extractListing(payload), timeout])
                   if (r.source === 'regex' && r.error) setWarning(r.error)
