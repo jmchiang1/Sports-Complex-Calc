@@ -29,6 +29,8 @@ import { fmtMoney } from '@/lib/format'
 import { ArrowUp, ArrowDown, ArrowUpDown, MoreVertical, Pencil, Trash2, Eye, MapPin } from 'lucide-react'
 import { calculateAnalysis } from '@/lib/calculator'
 import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
+import { REGIONS, detectRegion, type Region } from '@/lib/region'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { PropertyRow } from '@/lib/supabase/types'
 import type { Rating } from '@/types/analysis'
 
@@ -53,6 +55,7 @@ interface Props {
 export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
   const [search, setSearch] = useState('')
   const [ratingFilter, setRatingFilter] = useState<'all' | Rating>('all')
+  const [regionFilter, setRegionFilter] = useState<'all' | Region>('all')
   const [sortKey, setSortKey] = useState<SortKey>('created_at')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
 
@@ -74,13 +77,29 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
         noi: result.noi,
         totalCourts: result.courts.total,
         paybackYears: result.paybackYears,
+        region: detectRegion(r.address),
       }
     })
   }, [rows])
 
+  // Only show region tabs that actually have ≥1 property.
+  const visibleRegions = useMemo(() => {
+    const present = new Set(enrichedRows.map((e) => e.region).filter(Boolean))
+    return REGIONS.filter((r) => present.has(r))
+  }, [enrichedRows])
+
+  // If the user has the active tab on a region but no rows match anymore
+  // (e.g., they deleted the last property in that borough), drop back to All.
+  if (regionFilter !== 'all' && !visibleRegions.includes(regionFilter)) {
+    setRegionFilter('all')
+  }
+
   const filteredSorted = useMemo(() => {
     const needle = search.trim().toLowerCase()
     let out = enrichedRows
+    if (regionFilter !== 'all') {
+      out = out.filter((e) => e.region === regionFilter)
+    }
     if (needle) {
       out = out.filter(({ row }) => {
         const hay = `${row.label ?? ''} ${row.address ?? ''}`.toLowerCase()
@@ -115,7 +134,7 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
       }
     })
     return out
-  }, [enrichedRows, search, ratingFilter, sortKey, sortDir])
+  }, [enrichedRows, search, ratingFilter, regionFilter, sortKey, sortDir])
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -128,6 +147,23 @@ export function DashboardTable({ rows, onView, onEdit, onDelete }: Props) {
 
   return (
     <div className="dashboard-table space-y-3">
+      {/* Borough / county tabs — only render the ones with ≥1 property */}
+      {visibleRegions.length > 0 && (
+        <Tabs
+          value={regionFilter}
+          onValueChange={(v) => setRegionFilter(v as 'all' | Region)}
+        >
+          <TabsList variant="line" className="flex-wrap h-auto">
+            <TabsTrigger value="all">All</TabsTrigger>
+            {visibleRegions.map((r) => (
+              <TabsTrigger key={r} value={r}>
+                {r}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
+
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-2">
         <Input
