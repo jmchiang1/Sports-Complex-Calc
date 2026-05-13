@@ -10,6 +10,8 @@ import { RiskFlagsPanel } from '@/components/Dashboard/RiskFlagsPanel'
 import { SummaryPanel } from '@/components/Dashboard/SummaryPanel'
 import { StartupCostBreakdown } from '@/components/Dashboard/StartupCostBreakdown'
 import { Pencil, Trash2, MapPin, X, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { PhotoLightbox } from './PhotoLightbox'
 import type { PropertyRow } from '@/lib/supabase/types'
 import { calculateAnalysis } from '@/lib/calculator'
 import { DEFAULT_ASSUMPTIONS } from '@/lib/constants'
@@ -29,32 +31,43 @@ function PhotoStrip({
   images: string[]
   sourceUrl: string | null
 }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+
   return (
-    <div className="photo-strip flex gap-2 overflow-x-auto pb-1">
-      {images.map((src, i) => (
-        <a
-          key={src}
-          href={sourceUrl || src}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Open listing"
-          className="block shrink-0 h-32 w-44 rounded-lg overflow-hidden ring-1 ring-border bg-card hover:ring-foreground/30 transition"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt={`Listing photo ${i + 1}`}
-            className="h-full w-full object-cover"
-            loading="lazy"
-            onError={(e) => {
-              // Hide if the image fails to load (LoopNet CDN sometimes rejects hot-link)
-              const target = e.currentTarget
-              target.parentElement?.classList.add('hidden')
-            }}
-          />
-        </a>
-      ))}
-    </div>
+    <>
+      <div className="photo-strip flex gap-2 overflow-x-auto pb-1">
+        {images.map((src, i) => (
+          <button
+            key={src}
+            type="button"
+            onClick={() => setLightboxIndex(i)}
+            title="View larger"
+            className="block shrink-0 h-32 w-44 rounded-lg overflow-hidden ring-1 ring-border bg-card hover:ring-foreground/30 transition focus:outline-none focus:ring-2 focus:ring-foreground/40"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={`Listing photo ${i + 1}`}
+              className="h-full w-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                // Hide if the image fails to load (CDN sometimes rejects hot-link)
+                const target = e.currentTarget
+                target.parentElement?.classList.add('hidden')
+              }}
+            />
+          </button>
+        ))}
+      </div>
+
+      <PhotoLightbox
+        images={images}
+        initialIndex={lightboxIndex ?? 0}
+        open={lightboxIndex !== null}
+        onClose={() => setLightboxIndex(null)}
+        sourceUrl={sourceUrl}
+      />
+    </>
   )
 }
 
