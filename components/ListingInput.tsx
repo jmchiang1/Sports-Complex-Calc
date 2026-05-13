@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { extractListing } from '@/app/actions/extract-listing'
 import { fetchListingText } from '@/app/actions/fetch-listing'
+import { parseListingWithRegex } from '@/lib/extract/regex-fallback'
 import type { ExtractedListing } from '@/types/analysis'
 
 const URL_RE = /^https?:\/\/\S+$/
@@ -64,11 +65,10 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
       start(async () => {
         setPhase('extracting')
         try {
-          // 45-second cap. If the server action hangs (serverless timeout swallowed,
-          // Anthropic stalled, etc.) we still surface the failure instead of an
-          // indefinite "extracting…" state.
+          // 20-second cap. If extraction stalls, fall back to the client-side regex
+          // parser so the form at least populates with what regex can pull.
           const timeout = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Timed out after 45s')), 45_000),
+            setTimeout(() => reject(new Error('timeout')), 20_000),
           )
           const r = await Promise.race([extractListing(imported), timeout])
           if (r.source === 'regex' && r.error) setWarning(r.error)
@@ -76,7 +76,12 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
           onExtracted(r.listing, r.source, r.error)
         } catch (err) {
           const msg = err instanceof Error ? err.message : 'unknown error'
-          setWarning(`Extraction failed: ${msg}. Edit the form manually or try again.`)
+          // Fall back to client-side regex so the user isn't left empty-handed.
+          const fallback = parseListingWithRegex(imported)
+          onExtracted(fallback, 'regex')
+          setWarning(
+            `AI extraction failed (${msg}). Form populated with regex fallback — please double-check fields.`,
+          )
         } finally {
           setPhase('idle')
         }
@@ -140,14 +145,19 @@ export function ListingInput({ onExtracted, headerAction }: Props) {
 
                   setPhase('extracting')
                   const timeout = new Promise<never>((_, reject) =>
-                    setTimeout(() => reject(new Error('Timed out after 45s')), 45_000),
+                    setTimeout(() => reject(new Error('timeout')), 20_000),
                   )
                   const r = await Promise.race([extractListing(payload), timeout])
                   if (r.source === 'regex' && r.error) setWarning(r.error)
                   onExtracted(r.listing, r.source, r.error)
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : 'unknown error'
-                  setWarning(`Extraction failed: ${msg}. Edit the form manually or try again.`)
+                  // Fall back to client-side regex parsing so the user isn't stuck.
+                  const fallback = parseListingWithRegex(text)
+                  onExtracted(fallback, 'regex')
+                  setWarning(
+                    `AI extraction failed (${msg}). Form populated with regex fallback — please double-check fields.`,
+                  )
                 } finally {
                   setPhase('idle')
                 }
