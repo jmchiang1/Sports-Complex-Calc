@@ -11,6 +11,7 @@ import { VerdictModal } from '@/components/VerdictModal'
 import { FloorPlannerOverlay } from '@/components/FloorPlanner/FloorPlannerOverlay'
 import { BookmarkletHelper } from '@/components/BookmarkletHelper'
 import { listProperties } from '@/app/actions/list-properties'
+import { listDemoProperties } from '@/app/actions/demo-properties'
 import { deleteProperty } from '@/app/actions/delete-property'
 import { updatePropertyStatus } from '@/app/actions/update-status'
 import { updatePropertyInterested } from '@/app/actions/update-interested'
@@ -51,7 +52,14 @@ export function AppHome({ demo = false }: { demo?: boolean }) {
 
   const reload = useCallback(() => {
     if (demo) {
-      setRows(DEMO_PROPERTIES)
+      // Live-sync the demo from the showcase account's saved rows (a public-read
+      // RLS policy scoped to that one user_id). Fall back to the built-in
+      // samples if Supabase isn't configured or has no rows, so the demo is
+      // never empty. Reads only — demo stays local for any edits/deletes below.
+      startReload(async () => {
+        const list = await listDemoProperties()
+        setRows(list.length ? list : DEMO_PROPERTIES)
+      })
       return
     }
     // Re-arm the background backfills so a freshly saved/edited property (which
@@ -66,9 +74,11 @@ export function AppHome({ demo = false }: { demo?: boolean }) {
     })
   }, [demo])
 
-  // Initial load. Demo mode is seeded from state, so only fetch for real users.
+  // Initial load. Both modes now fetch: real users get their own rows, demo mode
+  // live-syncs the showcase account's rows (seeded from DEMO_PROPERTIES for an
+  // instant first paint, then replaced once the fetch resolves).
   useEffect(() => {
-    if (!demo) reload()
+    reload()
   }, [demo, reload])
 
   // Load the added competitor facilities once; combined with the built-in curated
